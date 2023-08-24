@@ -66,7 +66,7 @@ function Eks() {
       <>
         <div style={{ padding: "20px" }}>
           <h2>Players by Kills</h2>
-          <table style={tableStyle}>
+          <table>
             <thead>
               <tr style={tableRowStyle}>
                 <th>Name</th>
@@ -106,7 +106,7 @@ function Eks() {
           </table>
 
           <h2>Players by Deaths</h2>
-          <table style={tableStyle}>
+          <table>
             <thead>
               <tr style={tableRowStyle}>
                 <th style={tableHeaderStyle}>Gamer Name</th>
@@ -137,7 +137,7 @@ function Eks() {
           </table>
 
           <h2>Players by Assists</h2>
-          <table style={tableStyle}>
+          <table>
             <thead>
               <tr style={tableRowStyle}>
                 <th style={tableHeaderStyle}>Gamer Name</th>
@@ -176,7 +176,7 @@ function Eks() {
       <>
         {/* Champions by Kills Table */}
         <h2>Champions by Kills</h2>
-        <table style={tableStyle}>
+        <table>
           <thead>
             <tr style={tableRowStyle}>
               <th style={tableHeaderStyle}>Champion</th>
@@ -214,7 +214,7 @@ function Eks() {
         {Object.entries(teams).map(([teamName, players]) => (
           <div key={teamName} style={{ padding: "20px", marginBottom: "30px" }}>
             <h2>{teamName}</h2>
-            <table style={tableStyle}>
+            <table>
               <thead>
                 <tr style={tableRowStyle}>
                   <th style={tableHeaderStyle}>Gamer Name</th>
