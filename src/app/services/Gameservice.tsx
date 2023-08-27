@@ -20,7 +20,7 @@ export class Gameservice {
           team_name: playerData.team_name,
         };
       })
-      .sort((a, b) => b.totalKills - a.totalKills);
+      .sort((a, b) => b.killsPerGame - a.killsPerGame);
   }
 
   static getPlayersByDeaths(
@@ -40,9 +40,11 @@ export class Gameservice {
           totalDeaths,
           deathsPerGame: totalDeaths / totalGames,
           gameCount: totalGames,
+          nickname: playerData.nickname,
+          team_name: playerData.team_name,
         };
       })
-      .sort((a, b) => b.totalDeaths - a.totalDeaths);
+      .sort((a, b) => a.totalDeaths - b.totalDeaths);
   }
 
   static getPlayersByAssists(
@@ -62,14 +64,18 @@ export class Gameservice {
           totalAssists,
           assistsPerGame: totalAssists / totalGames,
           gameCount: totalGames,
+          nickname: playerData.nickname,
+          team_name: playerData.team_name,
         };
       })
-      .sort((a, b) => b.totalAssists - a.totalAssists);
+      .sort((a, b) => b.assistsPerGame - a.assistsPerGame);
   }
 
   static getChampionsByKills(
     playerDataList: PlayerData[]
   ): ChampionKillsSummary[] {
+    console.log("playerdtalist", playerDataList);
+
     const championStats = this.aggregateChampionStats(playerDataList);
     return Object.entries(championStats)
       .map(([champion, stats]) => ({
@@ -105,5 +111,41 @@ export class Gameservice {
     });
 
     return championStats;
+  }
+
+  static getPlayersByKDA(playerDataList: PlayerData[]): PlayerKDAStats[] {
+    return playerDataList
+      .filter((playerData) => Object.keys(playerData.champions).length > 0)
+      .map((playerData) => {
+        const totalKills = Object.values(playerData.champions)
+          .flat()
+          .reduce((sum, game) => sum + game.kills, 0);
+        const totalDeaths = Object.values(playerData.champions)
+          .flat()
+          .reduce((sum, game) => sum + game.deaths, 0);
+        const totalAssists = Object.values(playerData.champions)
+          .flat()
+          .reduce((sum, game) => sum + game.assists, 0);
+        const totalGames = Object.values(playerData.champions).flat().length;
+
+        const kda =
+          totalDeaths === 0
+            ? "Perfect"
+            : ((totalKills + totalAssists) / totalDeaths).toFixed(2);
+        return {
+          user_id: playerData.user_id,
+          user_name: playerData.user_name,
+          nationality: playerData.nationality,
+          kda,
+          gameCount: totalGames,
+          nickname: playerData.nickname,
+          team_name: playerData.team_name,
+        };
+      })
+      .sort((a, b) => {
+        if (a.kda === "Perfect") return -1;
+        if (b.kda === "Perfect") return 1;
+        return parseFloat(b.kda) - parseFloat(a.kda);
+      });
   }
 }

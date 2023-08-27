@@ -74,3 +74,58 @@ type ChampionKillsSummary = {
     kills: number;
   };
 };
+
+type TeamLogo = {
+  url: string;
+};
+
+type TeamInfo = {
+  name: string;
+  url: string;
+  logo: TeamLogo;
+};
+
+type Signup = {
+  id: number;
+  name: string;
+  points: number;
+  wins: number;
+  losses: number;
+  draws: number;
+  played: number;
+  team: TeamInfo;
+};
+
+type Division2 = {
+  id: number;
+  name: string;
+  signups: Signup[];
+};
+
+type PlayerKDAStats = {
+  nickname: string;
+  team_name: string; // Add this line
+  user_id: number;
+  user_name: string;
+  nationality: string;
+  kda: string | number; // You may decide whether you want to store 'Infinite' or not
+  gameCount: number;
+};
+
+interface PlayerProps {
+  navSort: string;
+  playersByKills: PlayerKillsSummary[];
+  playersByDeaths: PlayerDeathsSummary[];
+  playersByAssists: PlayerAssistsSummary[];
+  playersByKDA: PlayerKDAStats[];
+}
+
+type PlayerDataWithStats = PlayerData & {
+  kda: number | string; // or 'Perfect'
+  totalKills: number;
+  totalDeaths: number;
+  totalAssists: number;
+  killsPerGame: number;
+  deathsPerGame: number;
+  assistsPerGame: number;
+};

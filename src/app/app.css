@@ -9,12 +9,41 @@ body {
   display: flex;
 }
 
+.test {
+  display: flex;
+}
+
 .content {
+  margin-top: 20px;
   width: 83vw;
+}
+
+.content-nav {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 20px;
+  color: white;
+  font-weight: 600;
+  font-size: 18px;
+}
+
+.sorts-cnt {
+  display: flex;
+}
+
+.sorts-cnt div {
+  padding: 10px 20px;
+  background-color: var(--background);
+  border: 1px solid var(--stroke);
+  border-radius: 10px;
+  color: whitesmoke;
+  margin-right: 10px;
+  margin-top: 50px;
 }
 
 .tables {
   background-color: var(--background);
+  border: 1px solid var(--stroke);
   border-radius: 20px;
   padding: 2vh 4vw;
 }
@@ -42,6 +71,11 @@ table th {
   font-size: 14px;
 }
 
+table tr:hover {
+  background-color: var(--background-light);
+  cursor: pointer;
+}
+
 table tr {
   border-bottom: 1px solid var(--background-light);
   padding: 8px;
@@ -53,5 +87,36 @@ table tr {
 }
 
 .flagname img {
-  margin: 10px 30px;
+  margin: 10px 30px 10px 0px;
+}
+
+select {
+  border-style: none;
+  background-color: transparent;
+  padding: 10px 20px;
+  color: white;
+  font-weight: 600;
+  font-size: 18px;
+  border-bottom: 5px solid var(--purple);
+  margin-right: 30px;
+}
+
+.sorts-cnt {
+  display: flex;
+  margin-top: 10px;
+}
+
+.sort-option {
+  padding: 8px 16px;
+  border: 1px solid var(--background);
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.sort-option:hover {
+  border: 1px solid var(--purple);
+}
+
+.sort-option.active {
+  background-color: var(--purple);
 }
