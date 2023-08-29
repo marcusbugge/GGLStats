@@ -36,10 +36,13 @@ export async function fetchAllPlayerStats(
   const allPlayerStats: any[] = [];
 
   const divisionId = division ? divisionIds[division] : undefined;
+  const fetchedDivisionIds = new Set();
+
+  const ids = new Set();
 
   try {
     while (true) {
-      let urlMatchup = `https://corsproxy.io/?https://www.gamer.no/api/paradise/v2/matchup?competition_id=11710&from_date=2023-08-10&page=${currentPage}&filter=finished`;
+      let urlMatchup = `https://corsproxy.io/?https://www.gamer.no/api/paradise/v2/matchup?competition_id=11710&from_date=2020-08-10&page=${currentPage}&filter=finished`;
 
       if (divisionId) {
         urlMatchup += `&division_id=${divisionId}`;
@@ -53,10 +56,15 @@ export async function fetchAllPlayerStats(
         )
       );
 
+      console.log("matchupsData", matchupsData);
+
       const statsResponses = await Promise.all(statsPromises);
 
       statsResponses.forEach((response, index) => {
         const statsData = response.data;
+
+        console.log("statsdata", statsData);
+
         statsData.forEach((playerStat: any) => {
           playerStat.division = matchupsData.data[index].division;
         });
@@ -75,9 +83,38 @@ export async function fetchAllPlayerStats(
       (player) => player.team_id !== undefined
     );
 
+    validPlayerStats.sort((a: any, b: any) => a.user_id - b.user_id);
+
+    const aggregatedPlayerStats: any[] = [];
+
+    let currentUserId: any = null;
+    let currentPlayerStats: any = null;
+
+    validPlayerStats.forEach((player: any) => {
+      if (player.user_id !== currentUserId) {
+        // New user_id encountered, add the current player's stats to the aggregated list
+        if (currentPlayerStats !== null) {
+          aggregatedPlayerStats.push(currentPlayerStats);
+        }
+        // Update the current user_id and currentPlayerStats
+        currentUserId = player.user_id;
+        currentPlayerStats = { ...player, stats: [...player.stats] };
+      } else {
+        // Add the current player's stats to the currentPlayerStats' stats array
+        currentPlayerStats.stats.push(...player.stats);
+      }
+    });
+
+    // Add the last player's stats to the aggregated list
+    if (currentPlayerStats !== null) {
+      aggregatedPlayerStats.push(currentPlayerStats);
+    }
+
+    // aggregatedPlayerStats now contains the aggregated stats for each player
+
     // Step 1: Extract all unique team_ids from validPlayerStats
     const uniqueTeamIds = Array.from(
-      new Set(validPlayerStats.map((player) => player.team_id))
+      new Set(aggregatedPlayerStats.map((player) => player.team_id))
     );
 
     // Step 2: Fetch team names for each team_id and store in a map
@@ -100,13 +137,13 @@ export async function fetchAllPlayerStats(
     });
 
     // Now fetch player details and user nicknames for validPlayerStats only.
-    const playerDetailsPromises = validPlayerStats.map((player: any) =>
+    const playerDetailsPromises = aggregatedPlayerStats.map((player: any) =>
       api.get(
         `https://corsproxy.io/?https://www.gamer.no/api/paradise/user/${player.user_id}`
       )
     );
 
-    const userNicknamesPromises = validPlayerStats.map((player: any) =>
+    const userNicknamesPromises = aggregatedPlayerStats.map((player: any) =>
       api.get(
         `https://corsproxy.io/?https://www.gamer.no/api/paradise/user/${player.user_id}/thirdpartyaccounts?page=1`
       )
@@ -120,7 +157,7 @@ export async function fetchAllPlayerStats(
     const userNicknamesMap = new Map();
 
     userNicknamesResponses.forEach((response: any, index: number) => {
-      const userId = validPlayerStats[index].user_id;
+      const userId = aggregatedPlayerStats[index].user_id;
       const nicknameData = response.data.data.find(
         (item: any) => item.provider.title === "League of Legends"
       );
@@ -130,12 +167,12 @@ export async function fetchAllPlayerStats(
     });
 
     playerDetailsResponses.forEach((response, index) => {
-      validPlayerStats[index].user_name = response.data.user_name;
-      validPlayerStats[index].nationality = response.data.nationality;
+      aggregatedPlayerStats[index].user_name = response.data.user_name;
+      aggregatedPlayerStats[index].nationality = response.data.nationality;
     });
 
     // Step 3: Construct final player object with team name
-    return validPlayerStats.map((player: any) => {
+    return aggregatedPlayerStats.map((player: any) => {
       const championStats: Record<string, GameStats[]> = {};
 
       player.stats.forEach((stat: any) => {
@@ -156,7 +193,7 @@ export async function fetchAllPlayerStats(
         user_name: player.user_name,
         nationality: player.nationality,
         team_id: player.team_id,
-        team_name: teamNamesMap.get(player.team_id) || "N/A", // Add team_name
+        team_name: teamNamesMap.get(player.team_id) || "N/A",
         nickname: nickname,
         champions: championStats,
         division: player.division,

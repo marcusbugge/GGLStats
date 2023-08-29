@@ -11,8 +11,15 @@ import Standings from "./components/Standings";
 import Kills from "./components/Player";
 import Player from "./components/Player";
 import TeamScouter from "./components/TeamScouter";
+import LadderService from "./services/Ladderservice";
+import Champions from "./components/Champions";
 
-type SortPreference = "Player" | "Champion" | "Team" | "Team Scouter";
+type SortPreference =
+  | "Player"
+  | "Champion"
+  | "Team"
+  | "Team Scouter"
+  | "Ladder";
 
 function Eks() {
   const [navSort, setNavSort] = useState("KDA");
@@ -36,9 +43,12 @@ function Eks() {
   const playersByAssists = Gameservice.getPlayersByAssists(playerStats);
   const playersByKDA = Gameservice.getPlayersByKDA(playerStats);
   // Placeholder. You'll need to implement these methods in the Gameservice.
-  const championsByKills = Gameservice.getChampionsByKills(playerStats);
+  const championsByWinrate = Gameservice.getChampionWinrate(playerStats);
+  const championsByGames = Gameservice.getChampionsByGamesPlayed(playerStats);
+  const championsByKDA = Gameservice.getChampionKDAGames(playerStats);
 
-  console.log("killssdfsdfsdf", championsByKills);
+  console.log("stats", playerStats);
+  console.log("stats by kills", playersByKills);
 
   // const championsByDeaths = Gameservice.getChampionsByDeaths(playerStats);
   //const championsByAssists = Gameservice.getChampionsByAssists(playerStats);
@@ -55,70 +65,6 @@ function Eks() {
   };
 
   const [loading, setLoading] = useState(true);
-
-  const cleanChampionName = (name: string) => {
-    let cleanedName = name.replace(/[^a-zA-Z]/g, ""); // Remove all characters that are not letters
-
-    // Make the first letter following an apostrophe lowercase
-    if (name.includes("'")) {
-      const pos = name.indexOf("'");
-      if (pos < name.length - 1) {
-        const letterAfterApostrophe = name.charAt(pos + 1).toLowerCase();
-        cleanedName =
-          cleanedName.slice(0, pos) +
-          letterAfterApostrophe +
-          cleanedName.slice(pos + 1);
-      }
-    }
-    return cleanedName;
-  };
-
-  const renderChampionTables = () => {
-    return (
-      <>
-        {/* Champions by Kills Table */}
-        <h2>Champions by Kills</h2>
-        <table>
-          <thead>
-            <tr>
-              <th>Champion</th>
-              <th>Total Kills</th>
-              <th>Kills/Game</th>
-              <th>Game Count</th>
-            </tr>
-          </thead>
-          <tbody>
-            {championsByKills.map((champion, index) => (
-              <tr key={index}>
-                <td>
-                  {(() => {
-                    const cleanName = cleanChampionName(champion.champion);
-                    return (
-                      <>
-                        <div className="champion-img-name">
-                          <img
-                            src={`https://ddragon.leagueoflegends.com/cdn/13.8.1/img/champion/${cleanName}.png`}
-                          ></img>
-                          {champion.champion}
-                        </div>
-                      </>
-                    );
-                  })()}
-                </td>
-                <td>{champion.totalKills}</td>
-                <td>{champion.killsPerGame.toFixed(2)}</td>
-                <td>{champion.gameCount}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-
-        <h2>Champions by Deaths</h2>
-
-        <h2>Champions by Assists</h2>
-      </>
-    );
-  };
 
   const renderTeamsTables = () => {
     const teams = Teamservice.getPlayersByTeamWithStats(playerStats);
@@ -187,30 +133,67 @@ function Eks() {
             </select>
           </div>
           <div className="sorts-cnt">
-            <div
-              className={`sort-option ${navSort === "KDA" ? "active" : ""}`}
-              onClick={() => setNavSort("KDA")}
-            >
-              KDA
-            </div>
-            <div
-              className={`sort-option ${navSort === "Kills" ? "active" : ""}`}
-              onClick={() => setNavSort("Kills")}
-            >
-              Kills
-            </div>
-            <div
-              className={`sort-option ${navSort === "Deaths" ? "active" : ""}`}
-              onClick={() => setNavSort("Deaths")}
-            >
-              Deaths
-            </div>
-            <div
-              className={`sort-option ${navSort === "Assists" ? "active" : ""}`}
-              onClick={() => setNavSort("Assists")}
-            >
-              Assists
-            </div>
+            {viewPreference === "Player" && (
+              <>
+                <div
+                  className={`sort-option ${navSort === "KDA" ? "active" : ""}`}
+                  onClick={() => setNavSort("KDA")}
+                >
+                  KDA
+                </div>
+                <div
+                  className={`sort-option ${
+                    navSort === "Kills" ? "active" : ""
+                  }`}
+                  onClick={() => setNavSort("Kills")}
+                >
+                  Kills
+                </div>
+                <div
+                  className={`sort-option ${
+                    navSort === "Deaths" ? "active" : ""
+                  }`}
+                  onClick={() => setNavSort("Deaths")}
+                >
+                  Deaths
+                </div>
+                <div
+                  className={`sort-option ${
+                    navSort === "Assists" ? "active" : ""
+                  }`}
+                  onClick={() => setNavSort("Assists")}
+                >
+                  Assists
+                </div>
+              </>
+            )}
+            {viewPreference === "Champion" && (
+              <>
+                <div
+                  className={`sort-option ${navSort === "KDA" ? "active" : ""}`}
+                  onClick={() => setNavSort("KDA")}
+                >
+                  KDA
+                </div>
+                <div
+                  className={`sort-option ${
+                    navSort === "Winrate" ? "active" : ""
+                  }`}
+                  onClick={() => setNavSort("Winrate")}
+                >
+                  Winrate
+                </div>
+                <div
+                  className={`sort-option ${
+                    navSort === "Games" ? "active" : ""
+                  }`}
+                  onClick={() => setNavSort("Games")}
+                >
+                  Games
+                </div>
+              </>
+            )}
+            {viewPreference === "Team" && null}
           </div>
         </div>
 
@@ -226,7 +209,19 @@ function Eks() {
               playersByKDA={playersByKDA}
             />
           )}
-          {viewPreference === "Champion" && renderChampionTables()}
+          {viewPreference === "Champion" && (
+            <Champions
+              championsByKDA={championsByKDA}
+              championsByGames={championsByGames}
+              championsByWinrate={championsByWinrate}
+              playerDataList={playerStats}
+              loading={loading}
+              navSort={navSort}
+            />
+          )}
+          {viewPreference === "Ladder" && (
+            <LadderService players={playerStats} />
+          )}
           {viewPreference === "Team" && renderTeamsTables()}
           {viewPreference === "Team Scouter" && (
             <TeamScouter
@@ -236,9 +231,10 @@ function Eks() {
           )}
         </div>
       </div>
-      {selectedDivision !== undefined && (
-        <Standings divisionId={selectedDivision} />
-      )}
+      {selectedDivision !== undefined &&
+        (viewPreference === "Team" || viewPreference === "Team Scouter") && (
+          <Standings divisionId={selectedDivision} />
+        )}
     </div>
   );
 }

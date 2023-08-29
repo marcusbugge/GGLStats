@@ -33,7 +33,7 @@ export default function Player({
             </thead>
             <tbody>
               {Array.from({ length: 10 }, (_, index) => (
-                <tr key={index}>
+                <tr key={index + 1}>
                   <td>--</td>
                   <td>--</td>
                   <td>--</td>
@@ -67,6 +67,7 @@ export default function Player({
                 <tr key={index}>
                   <td className="white flagname">
                     {" "}
+                    <p>{index + 1}</p>
                     <img
                       src={`https://flagsapi.com/${player.nationality}/flat/64.png`}
                       alt={`${player.nationality} flag`}
@@ -102,9 +103,10 @@ export default function Player({
             </thead>
             <tbody>
               {playersByDeaths.map((player: any, index: any) => (
-                <tr key={index}>
+                <tr key={index + 1}>
                   <td className="white flagname">
                     {" "}
+                    <p>{index + 1}</p>
                     <img
                       src={`https://flagsapi.com/${player.nationality}/flat/64.png`}
                       alt={`${player.nationality} flag`}
@@ -132,27 +134,39 @@ export default function Player({
             <thead>
               <tr>
                 <th>Name</th>
-                <th>IGN</th>
+
                 <th>Team</th>
                 <th>Games</th>
+                <th>Better than team average</th>
                 <th>KDA</th>
               </tr>
             </thead>
             <tbody>
               {playersByKDA.map((player: any, index: any) => (
-                <tr key={index}>
+                <tr key={index + 1}>
                   <td className="white flagname">
                     {" "}
+                    <p>{index + 1}</p>
                     <img
                       src={`https://flagsapi.com/${player.nationality}/flat/64.png`}
                       alt={`${player.nationality} flag`}
                     />
                     {player.user_name}
                   </td>
-                  <td>{player.nickname}</td>
 
                   <td>{player.team_name}</td>
                   <td className="white">{player.gameCount}</td>
+
+                  <td
+                    style={{
+                      color:
+                        parseFloat(player.betterThanTeamAvg) >= 0
+                          ? "green"
+                          : "red",
+                    }}
+                  >
+                    {player.betterThanTeamAvg}%
+                  </td>
                   <td className="white">{player.kda}</td>
                 </tr>
               ))}
@@ -177,9 +191,10 @@ export default function Player({
             </thead>
             <tbody>
               {playersByAssists.map((player: any, index: any) => (
-                <tr key={index}>
+                <tr key={index + 1}>
                   <td className="white flagname">
                     {" "}
+                    <p>{index + 1}</p>
                     <img
                       src={`https://flagsapi.com/${player.nationality}/flat/64.png`}
                       alt={`${player.nationality} flag`}

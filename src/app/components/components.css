@@ -4,9 +4,8 @@
   border-radius: 20px;
   padding: 20px;
   margin-left: 20px;
-  margin-top: 190px;
-  height: 75vh;
-  width: 35vw;
+  margin-top: 100px;
+  max-height: 90vh;
 }
 
 .standing-team a {
@@ -68,7 +67,58 @@
 }
 
 .champion-img-name img {
-  margin-right: 10px;
+  margin: 10px;
+}
+
+.champion-details {
+  color: white;
+  padding: 20px 0px;
+}
+.details-data {
+  display: flex;
+  background-color: var(--background-dark);
+  width: 90%;
+  padding: 10px 40px;
+  margin-bottom: 10px;
+  border-radius: 20px;
+  justify-content: space-between;
+  border: 1px solid var(--stroke);
+}
+
+.flex-details {
+  display: flex;
+  justify-content: space-evenly;
+  width: 70%;
+}
+
+@keyframes slideDown {
+  from {
+    max-height: 0;
+    opacity: 0;
+  }
+  to {
+    max-height: 100%;
+    opacity: 1;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    max-height: 100%;
+    opacity: 1;
+  }
+  to {
+    max-height: 0;
+    opacity: 0;
+  }
+}
+
+.slide-down-entered {
+  animation: slideDown 0.5s ease-in-out forwards;
+}
+
+.slide-down-exited {
+  animation: slideUp 0.5s ease-in-out forwards;
 }
 
 /** TEAM SCOUTER **/
@@ -84,7 +134,7 @@
 }
 
 .scout-team {
-  width: 250px;
+  width: 200px;
   padding: 30px 50px;
   background-color: var(--background-dark);
   border: 1px solid var(--stroke);
@@ -153,4 +203,24 @@
   border-radius: 10px;
   margin-left: 20px;
   margin-top: 5px;
+}
+
+.team-scout button {
+  background-color: var(--background-dark);
+  border: 1px solid var(--stroke);
+  border-radius: 20px;
+  background: none;
+  padding: 10px 20px;
+  color: white;
+  font-weight: 600;
+  margin-top: 40px;
+  cursor: pointer;
+}
+
+.team-scout button:hover {
+  border: 1px solid var(--purple);
+}
+
+.rank-ladder {
+  margin-right: 20px;
 }

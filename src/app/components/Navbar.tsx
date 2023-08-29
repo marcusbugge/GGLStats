@@ -42,12 +42,18 @@ export default function Navbar({ setNavSort, handleSortOptionClick }: any) {
         </h2>
 
         <div className="nav-line"></div>
-
+        <br></br>
         <h2
           onClick={() => handleSortClick("Team Scouter")}
           className={activeSort === "Team Scouter" ? "active" : ""}
         >
           Team scouter
+        </h2>
+        <h2
+          onClick={() => handleSortClick("Ladder")}
+          className={activeSort === "Ladder" ? "active" : ""}
+        >
+          SoloQ Ladder
         </h2>
       </div>
     </div>

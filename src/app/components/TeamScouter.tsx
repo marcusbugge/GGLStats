@@ -57,7 +57,20 @@ export default function TeamScouter({ divisionId, playerStats }: any) {
     gamesCount?: number
   ) => {
     const kda = calculateChampionKDA(statsArray[0]);
+    let kdaColor;
+
+    if (kda >= 5) {
+      kdaColor = "rgb(232, 64, 87)";
+    } else if (kda >= 4 && kda < 5) {
+      kdaColor = "rgb(0, 147, 255)";
+    } else if (kda > 3 && kda < 4) {
+      kdaColor = "#00BBA3";
+    } else {
+      kdaColor = "default-color"; // Replace with your default color
+    }
+
     const cleanName = cleanChampionName(champion);
+
     return (
       <div className="champion-stats">
         <img
@@ -66,11 +79,13 @@ export default function TeamScouter({ divisionId, playerStats }: any) {
           width="40"
           height="40"
         />
-        <p>KDA: {isFinite(kda) ? kda.toFixed(2) : "Perfect"}</p>
+        <p style={{ color: kdaColor }}>
+          KDA: {isFinite(kda) ? kda.toFixed(2) : "Perfect"}
+        </p>
         {gamesCount !== undefined && (
           <p>
             {` `}
-            ...Games: {gamesCount}
+            --Games: {gamesCount}
           </p>
         )}
       </div>
