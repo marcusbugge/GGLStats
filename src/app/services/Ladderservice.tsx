@@ -2,112 +2,238 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 
 interface Player {
-  nickname: string;
-  team_name: string;
-
-  [key: string]: any;
+  summonerName: string;
+  teamId: string;
+  nationality: string;
+  user_name: string;
+  rank?: { rank: string; LP: string }; // This is the change
+  division?: string;
 }
 
-const LadderService: React.FC<{ players: Player[] }> = ({ players }) => {
-  const tierOrder = [
-    "iron",
-    "bronze",
-    "silver",
-    "gold",
-    "platinum",
-    "emerald",
-    "diamond",
-    "master",
-    "grandmaster",
-    "challenger",
-  ];
+interface LadderServiceProps {
+  players: any[];
+  navSort: any;
+}
 
-  const [rankedPlayers, setRankedPlayers] = useState<Player[]>([]);
+const LadderService = ({ players, navSort }: LadderServiceProps) => {
+  const [allPlayerInfo, setAllPlayerInfo] = useState<Player[]>([]);
+  const [isLoading, setIsLoading] = useState(true); // Add this line
+  const sleep = (ms: any) => new Promise((resolve) => setTimeout(resolve, ms));
+
+  let sortedPlayers = [...players]; // Create a copy of players
+
+  const sortPlayers = (players: Player[], sortBy: string) => {
+    let sorted = [...players];
+    if (sortBy === "Division") {
+      sorted.sort((a, b) => {
+        if (a.division && b.division) {
+          return a.division.localeCompare(b.division);
+        }
+        return 0;
+      });
+    }
+    // Add more sorting conditions here as needed.
+    return sorted;
+  };
 
   useEffect(() => {
-    const fetchRanks = async () => {
+    // Call the sorting function whenever 'navSort' changes
+    const sorted = sortPlayers(allPlayerInfo, navSort);
+    setAllPlayerInfo(sorted);
+  }, [navSort]);
+
+  const rankPriority: any = {
+    Challenger: 9,
+    Grandmaster: 8,
+    Master: 7,
+    Diamond: 6,
+    Emerald: 5,
+    Platinum: 4,
+    Gold: 3,
+    Silver: 2,
+    Iron: 1,
+  };
+
+  const romanPriority: any = {
+    I: 4,
+    II: 3,
+    III: 2,
+    IV: 1,
+  };
+
+  const fetchDivisionPlayers = async (divisionIds: string[]) => {
+    const headers = {
+      Authorization: "Bearer 22|jDom6Dw36tOiG0BMrUWTH2HBbu5SoAVZOv3M9rmD",
+      "Content-Type": "application/json",
+    };
+    const promises = divisionIds.map((id) =>
+      fetch(
+        `https://corsproxy.io/?https://www.gamer.no/api/paradise/v2/division/${id}/players`,
+        { headers }
+      ).then((response) => response.json())
+    );
+
+    return await Promise.all(promises);
+  };
+
+  const fetchDivisionStats = async (divisionIds: string[]) => {
+    const headers = {
+      Authorization: "Bearer 22|jDom6Dw36tOiG0BMrUWTH2HBbu5SoAVZOv3M9rmD",
+      "Content-Type": "application/json",
+    };
+    const promises = divisionIds.map((id) =>
+      fetch(
+        `https://corsproxy.io/?https://www.gamer.no/api/paradise/v2/division/${id}/stats`,
+        { headers }
+      ).then((response) => response.json())
+    );
+
+    return await Promise.all(promises);
+  };
+
+  const fetchRank = async (
+    summonerNames: string[]
+  ): Promise<Map<string, { rank: string; LP: string }>> => {
+    const url = `https://corsproxy.io/?https://api.lolstats.fourzero.one/v2/summonerrank?region=euw1&&summoner=${summonerNames.join(
+      ","
+    )}`;
+    const response = await fetch(url);
+    const data = await response.text();
+    console.log("Fetched raw rank data: ", data); // Add this line to debu
+    return parseRankData(data);
+  };
+
+  const parseRankData = (
+    data: string
+  ): Map<string, { rank: string; LP: string }> => {
+    const entries = data.split(" || ");
+    const rankMap = new Map<string, { rank: string; LP: string }>();
+
+    const rankRegex =
+      /(Iron|Silver|Gold|Platinum|Emerald|Diamond|Master|Grandmaster|Challenger) ([IVXLCDM]+) - (\d+LP)/;
+
+    for (const entry of entries) {
+      const rankMatch = entry.match(rankRegex);
+      if (rankMatch) {
+        const name = entry.substring(0, rankMatch.index).trim();
+        const rank = `${rankMatch[1]} ${rankMatch[2]}`;
+        const LP = rankMatch[3];
+        rankMap.set(name, { rank, LP });
+      }
+    }
+    console.log("rankmap");
+
+    return rankMap;
+  };
+
+  useEffect(() => {
+    const fetchData = async () => {
       try {
-        const MAX_NAMES_PER_REQUEST = 12;
-        const chunkedPlayers = Array.from(
-          { length: Math.ceil(players.length / MAX_NAMES_PER_REQUEST) },
-          (_, i) =>
-            players.slice(
-              i * MAX_NAMES_PER_REQUEST,
-              (i + 1) * MAX_NAMES_PER_REQUEST
-            )
-        );
+        setIsLoading(true);
 
-        const rankedPlayers: Player[] = [];
-
-        const fetchChunk = async (playerChunk: Player[]) => {
-          const summonerNames = playerChunk.map((p) => p.nickname).join(", ");
-          const res = await axios.get(
-            `https://corsproxy.io/?https://api.lolstats.fourzero.one/v2/summonerrank?region=euw1&&summoner=${summonerNames}`
-          );
-          const rankStrings: string = res.data;
-          const rankArray = rankStrings.split(" || ");
-
-          for (const player of playerChunk) {
-            const rankInfo = rankArray.find((rankStr) => {
-              const match = rankStr.match(
-                new RegExp(`^${player.nickname}\\s+(.*)`)
-              );
-              return match ? true : false;
-            });
-            const rank = rankInfo
-              ? rankInfo.replace(new RegExp(`^${player.nickname}\\s+`), "")
-              : "Unranked";
-            rankedPlayers.push({ ...player, rank });
-          }
+        const headers = {
+          Authorization: "Bearer 22|jDom6Dw36tOiG0BMrUWTH2HBbu5SoAVZOv3M9rmD",
+          "Content-Type": "application/json",
         };
 
-        const promises = chunkedPlayers.map(fetchChunk);
-        await Promise.all(promises);
+        const divisionsResponse = await fetch(
+          "https://corsproxy.io/?https://www.gamer.no/api/paradise/v2/competition/11710/divisions",
+          { headers }
+        );
+        const divisions = await divisionsResponse.json();
 
-        rankedPlayers.sort((a, b) => {
-          const aRankInfo = a.rank.toLowerCase().split(" - ");
-          const bRankInfo = b.rank.toLowerCase().split(" - ");
+        const allPlayerStats = await fetchDivisionStats(
+          divisions.map((d: any) => d.id)
+        );
 
-          const aTierDivision = aRankInfo[0].split(" ");
-          const bTierDivision = bRankInfo[0].split(" ");
+        console.log("allplayerstats", allPlayerStats);
 
-          const aTier = aTierDivision[0];
-          const bTier = bTierDivision[0];
+        const updatedPlayerInfo: Player[] = [];
 
-          const aTierIndex = tierOrder.indexOf(aTier);
-          const bTierIndex = tierOrder.indexOf(bTier);
+        for (let i = 0; i < allPlayerStats.length; i++) {
+          const stats = allPlayerStats[i];
+          const division = divisions[i];
 
-          if (aTierIndex < bTierIndex) return 1;
-          if (aTierIndex > bTierIndex) return -1;
+          console.log("statssss", stats);
 
-          // If the tier is below 'master', check divisions
-          if (aTierIndex < tierOrder.indexOf("master")) {
-            const aDivision = parseInt(aTierDivision[1]);
-            const bDivision = parseInt(bTierDivision[1]);
+          for (const player of stats) {
+            const summonerName = player.summonerName || "Unknown";
+            const teamId = player.teamname || "Unknown";
+            const nationality = player.user.nationality;
+            const user_name = player.user.user_name;
 
-            if (aDivision !== bDivision) {
-              return bDivision - aDivision; // 1 > 2 > 3 > 4
+            updatedPlayerInfo.push({
+              summonerName,
+              teamId,
+              nationality,
+              user_name,
+              division: division.name, // Use the division name directly
+            });
+          }
+        }
+
+        const rankPromises = [];
+
+        const chunks = [];
+        for (let i = 0; i < updatedPlayerInfo.length; i += 12) {
+          chunks.push(updatedPlayerInfo.slice(i, i + 12));
+        }
+
+        for (const chunk of chunks) {
+          await sleep(500); // waits for 500 ms
+          const summonerNames = chunk.map((player) => player.summonerName);
+          const rankPromise = fetchRank(summonerNames).then((rankMap: any) => {
+            for (const player of chunk) {
+              player.rank = rankMap.get(player.summonerName) || {
+                rank: "Unranked",
+                LP: "0LP",
+              };
             }
+          });
+
+          rankPromises.push(rankPromise);
+        }
+
+        await Promise.all(rankPromises);
+
+        updatedPlayerInfo.sort((a, b) => {
+          const aRankStr = a.rank?.rank || "";
+          const bRankStr = b.rank?.rank || "";
+
+          const [rankA = "", divisionA = ""] = aRankStr.split(" ");
+          const [rankB = "", divisionB = ""] = bRankStr.split(" ");
+
+          const LPA = parseInt(a.rank?.LP.replace("LP", "") || "0", 10);
+          const LPB = parseInt(b.rank?.LP.replace("LP", "") || "0", 10);
+
+          if (rankPriority[rankA] !== rankPriority[rankB]) {
+            return (rankPriority[rankB] || 0) - (rankPriority[rankA] || 0);
           }
 
-          // If both are the same tier and division, check LP
-          const aLP = parseInt(aRankInfo[1].split("LP")[0]);
-          const bLP = parseInt(bRankInfo[1].split("LP")[0]);
+          if (divisionA && divisionB && divisionA !== divisionB) {
+            return (
+              (romanPriority[divisionB] || 0) - (romanPriority[divisionA] || 0)
+            );
+          }
 
-          return bLP - aLP; // Higher LP should come first
+          return LPB - LPA;
         });
 
-        setRankedPlayers(rankedPlayers);
+        setAllPlayerInfo(updatedPlayerInfo);
       } catch (error) {
-        console.error(`Could not fetch ranks: ${error}`);
-        setRankedPlayers(
-          players.map((player) => ({ ...player, rank: "Unranked" }))
-        );
+        console.error(`Could not fetch data: ${error}`);
+      } finally {
+        setIsLoading(false); // Add this line
       }
     };
 
-    fetchRanks();
-  }, [players]);
+    fetchData();
+    console.log("all", allPlayerInfo);
+  }, []);
+
+  if (isLoading) {
+    return <div className="white">Loading ladder...</div>; // Simple loading indicator, you can replace with your own animation
+  }
 
   return (
     <div>
@@ -118,11 +244,12 @@ const LadderService: React.FC<{ players: Player[] }> = ({ players }) => {
             <th>Name</th>
             <th>IGN</th>
             <th>Team</th>
+            <th>Division</th>
             <th>Rank</th>
           </tr>
         </thead>
         <tbody>
-          {rankedPlayers.map((player: any, index: any) => (
+          {allPlayerInfo.map((player: Player, index: number) => (
             <tr key={index}>
               <td className="white flagname">
                 <p className="rank-ladder">{index + 1}</p>
@@ -132,10 +259,12 @@ const LadderService: React.FC<{ players: Player[] }> = ({ players }) => {
                 />
                 {player.user_name}
               </td>
-              <td>{player.nickname}</td>
-
-              <td>{player.team_name}</td>
-              <td className="white">{player.rank}</td>
+              <td>{player.summonerName}</td>
+              <td>{player.teamId}</td>
+              <td>{player.division}</td>
+              <td className="white">
+                {player.rank?.rank} - {player.rank?.LP}
+              </td>
             </tr>
           ))}
         </tbody>

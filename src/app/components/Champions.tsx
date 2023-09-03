@@ -1,8 +1,10 @@
-import React from "react";
+"use client";
+
+import React, { useEffect, useState } from "react";
 import { Gameservice } from "../services/Gameservice";
+import { Championservice } from "../services/Championservice";
 
 export default function Champions({
-  loading,
   navSort,
   playersByKills,
   playersByDeaths,
@@ -16,6 +18,22 @@ export default function Champions({
   const [clickedChampion, setClickedChampion] = React.useState(null);
 
   const [championGames, setChampionGames] = React.useState<any[]>([]);
+
+  const [championData, setChampionData]: any = useState([]);
+
+  const [loading, setLoading] = useState(true); // Initialize state to manage loading status
+
+  useEffect(() => {
+    const fetchChampionData = async () => {
+      const data = await Championservice.getChampionData();
+      setChampionData(data.data);
+      setLoading(false); // Set loading to false once the data is fetched
+    };
+
+    fetchChampionData(); // Call the function to fetch the data
+  }, []); // Empty dependency array to ensure the effect only runs once
+
+  console.log("asdjklfksdflks", championData);
 
   const handleChampionClick = async (champion: any) => {
     console.log("champ", champion);
@@ -42,10 +60,80 @@ export default function Champions({
     championsByGames,
     championsByKDA,
   }: any) => {
-    if (navSort == "Winrate") {
-      const filteredChampions = showFiltered
-        ? championsByWinrate.filter((champion: any) => champion.games >= 2)
-        : championsByWinrate;
+    if (navSort == "KDA") {
+      return (
+        <div>
+          <h2>Champions by KDA</h2>
+          <table>
+            <thead>
+              <tr>
+                <th>Champion</th>
+                <th>Game Count</th>
+                <th>Kills/game</th>
+                <th>Deaths/game</th>
+                <th>Assists/game</th>
+                <th>KDA</th>
+              </tr>
+            </thead>
+            <tbody>
+              {Array.isArray(championData) &&
+                championData.map((champion: any, index: any) => (
+                  // your code
+
+                  <>
+                    <tr
+                      key={index}
+                      onClick={() => handleChampionClick(champion)}
+                    >
+                      <td>
+                        {(() => {
+                          const championGames = Gameservice.getGamesForChampion(
+                            playerDataList,
+                            champion.champion
+                          );
+
+                          return (
+                            <>
+                              <div className="champion-img-name">
+                                {index + 1}
+                                <img src={champion.image}></img>
+                                <p className="white">{champion.name}</p>
+                              </div>
+                            </>
+                          );
+                        })()}
+                      </td>
+                      <td>{champion.count}</td>
+                      <td className="white">{champion.avgKills.toFixed(2)}</td>
+                      <td className="white">{champion.avgDeaths.toFixed(2)}</td>
+                      <td className="white">
+                        {champion.avgAssists.toFixed(2)}
+                      </td>
+                      <td className="white">
+                        {(
+                          (champion.kills + champion.assists) /
+                          champion.deaths
+                        ).toFixed(2)}
+                      </td>
+                    </tr>
+                    {clickedChampion === champion && (
+                      <tr>
+                        <td>
+                          {/* Put your detailed data about the clickedChampion here */}
+                          <div>
+                            <h3>Details for {champion.champion}</h3>
+                            {/* Other details... */}
+                          </div>
+                        </td>
+                      </tr>
+                    )}
+                  </>
+                ))}
+            </tbody>
+          </table>
+        </div>
+      );
+    } else if (navSort == "Winrate") {
       return (
         <div>
           <h2>Champions by Winrate</h2>
@@ -54,143 +142,310 @@ export default function Champions({
               <tr>
                 <th>Champion</th>
                 <th>Game Count</th>
+                <th>Wins</th>
+                <th>Loss</th>
                 <th>Winrate</th>
               </tr>
             </thead>
             <tbody>
-              {filteredChampions.map((champion: any, index: any) => (
-                <>
-                  <tr key={index} onClick={() => handleChampionClick(champion)}>
-                    <td>
-                      {(() => {
-                        const cleanName = cleanChampionName(champion.champion);
+              {Array.isArray(championData) &&
+                championData.map((champion: any, index: any) => (
+                  // your code
 
-                        const championGames = Gameservice.getGamesForChampion(
-                          playerDataList,
-                          champion.champion
-                        );
-
-                        return (
-                          <>
-                            <div className="champion-img-name">
-                              {index + 1}
-                              <img
-                                src={`https://ddragon.leagueoflegends.com/cdn/13.8.1/img/champion/${cleanName}.png`}
-                              ></img>
-                              <p className="white">{champion.champion}</p>
-                            </div>
-                          </>
-                        );
-                      })()}
-                    </td>
-                    <td>{champion.games}</td>
-                    <td>{champion.winrate}</td>
-                  </tr>
-                  {clickedChampion === champion && (
-                    <tr>
+                  <>
+                    <tr
+                      key={index}
+                      onClick={() => handleChampionClick(champion)}
+                    >
                       <td>
-                        {/* Put your detailed data about the clickedChampion here */}
-                        <div>
-                          <h3>Details for {champion.champion}</h3>
-                          {/* Other details... */}
-                        </div>
+                        {(() => {
+                          const championGames = Gameservice.getGamesForChampion(
+                            playerDataList,
+                            champion.champion
+                          );
+
+                          return (
+                            <>
+                              <div className="champion-img-name">
+                                {index + 1}
+                                <img src={champion.image}></img>
+                                <p className="white">{champion.name}</p>
+                              </div>
+                            </>
+                          );
+                        })()}
+                      </td>
+                      <td>{champion.count}</td>
+                      <td>{champion.winCount}</td>
+                      <td>{champion.count - champion.winCount}</td>
+                      <td className="white">
+                        {((champion.winCount / champion.count) * 100).toFixed(
+                          2
+                        )}
+                        %
                       </td>
                     </tr>
-                  )}
-                </>
-              ))}
+                    {clickedChampion === champion && (
+                      <tr>
+                        <td>
+                          {/* Put your detailed data about the clickedChampion here */}
+                          <div>
+                            <h3>Details for {champion.champion}</h3>
+                            {/* Other details... */}
+                          </div>
+                        </td>
+                      </tr>
+                    )}
+                  </>
+                ))}
             </tbody>
           </table>
         </div>
       );
-    } else if (navSort == "KDA") {
-      const filteredChampions = showFiltered
-        ? championsByKDA.filter((champion: any) => champion.totalGames >= 2)
-        : championsByKDA;
-
+    } else if (navSort == "Farm") {
       return (
         <div>
-          <h2>Champions by KDA</h2>
+          <h2>Champions by Farm</h2>
           <table>
             <thead>
               <tr>
                 <th>Champion</th>
-                <th>Games</th>
-                <th>KDA</th>
+                <th>Game Count</th>
+                <th>CS/game</th>
+                <th>CS/min</th>
               </tr>
             </thead>
             <tbody>
-              {filteredChampions.map((champion: any, index: any) => (
-                <>
-                  <tr key={index} onClick={() => handleChampionClick(champion)}>
-                    <td>
-                      {(() => {
-                        const cleanName = cleanChampionName(champion.champion);
-                        const championGames = Gameservice.getGamesForChampion(
-                          playerDataList,
-                          champion.champion
-                        );
+              {Array.isArray(championData) &&
+                championData.map((champion: any, index: any) => (
+                  // your code
 
-                        return (
-                          <>
-                            <div className="champion-img-name">
-                              {index + 1}
-                              <img
-                                src={`https://ddragon.leagueoflegends.com/cdn/13.8.1/img/champion/${cleanName}.png`}
-                              ></img>
-                              <p className="white">{champion.champion}</p>
-                            </div>
-                          </>
-                        );
-                      })()}
-                    </td>
-                    <td>{champion.totalGames}</td>
-                    <td className="white">{champion.kda.toFixed(2)}</td>
-                  </tr>
-                  {clickedChampion === champion && (
-                    <td className="champion-details" colSpan={3}>
-                      {/* Put your detailed data about the clickedChampion here */}
-                      <div
-                        className={
-                          clickedChampion === champion
-                            ? "slide-down-entered"
-                            : "slide-down-exited"
-                        }
-                      >
-                        <h3 className="white">{champion.champion} players</h3>
+                  <>
+                    <tr
+                      key={index}
+                      onClick={() => handleChampionClick(champion)}
+                    >
+                      <td>
+                        {(() => {
+                          const championGames = Gameservice.getGamesForChampion(
+                            playerDataList,
+                            champion.champion
+                          );
 
-                        {championGames.map((game: any, gameIndex: number) => (
-                          <div className="details-data" key={gameIndex}>
-                            <p>{gameIndex + 1}</p>
-                            <p className="white">{game.user_name}</p>
-                            <div className="flex-details">
-                              <p>
-                                Kills:{" "}
-                                <span className="white">{game.kills}</span>
-                              </p>
-                              <p>
-                                Deaths:{" "}
-                                <span className="white">{game.deaths}</span>
-                              </p>
-                              <p>
-                                Assists:{" "}
-                                <span className="white">{game.assists}</span>
-                              </p>
-                              <p>
-                                KDA: <span className="white">{game.kda}</span>
-                              </p>
-                            </div>
-
-                            {/* Add more game-specific stats here */}
+                          return (
+                            <>
+                              <div className="champion-img-name">
+                                {index + 1}
+                                <img src={champion.image}></img>
+                                <p className="white">{champion.name}</p>
+                              </div>
+                            </>
+                          );
+                        })()}
+                      </td>
+                      <td>{champion.count}</td>
+                      <td className="white">
+                        {champion.avgTotalMinionsKilled.toFixed(0)}
+                      </td>
+                      <td className="white">
+                        {champion.avgMinionsKilledPerMinute}
+                      </td>
+                    </tr>
+                    {clickedChampion === champion && (
+                      <tr>
+                        <td>
+                          {/* Put your detailed data about the clickedChampion here */}
+                          <div>
+                            <h3>Details for {champion.champion}</h3>
+                            {/* Other details... */}
                           </div>
-                        ))}
+                        </td>
+                      </tr>
+                    )}
+                  </>
+                ))}
+            </tbody>
+          </table>
+        </div>
+      );
+    } else if (navSort == "KP") {
+      return (
+        <div>
+          <h2>Champions by KP</h2>
+          <table>
+            <thead>
+              <tr>
+                <th>Champion</th>
+                <th>Game Count</th>
+                <th>KP</th>
+              </tr>
+            </thead>
+            <tbody>
+              {Array.isArray(championData) &&
+                championData.map((champion: any, index: any) => (
+                  // your code
 
-                        {/* LOOP OVER championgames here and render out all the games with stats and the player*/}
-                      </div>
-                    </td>
-                  )}
-                </>
-              ))}
+                  <>
+                    <tr
+                      key={index}
+                      onClick={() => handleChampionClick(champion)}
+                    >
+                      <td>
+                        {(() => {
+                          const championGames = Gameservice.getGamesForChampion(
+                            playerDataList,
+                            champion.champion
+                          );
+
+                          return (
+                            <>
+                              <div className="champion-img-name">
+                                {index + 1}
+                                <img src={champion.image}></img>
+                                <p className="white">{champion.name}</p>
+                              </div>
+                            </>
+                          );
+                        })()}
+                      </td>
+                      <td>{champion.count}</td>
+                      <td className="white">
+                        {champion.avgKillParticipation}%
+                      </td>
+                    </tr>
+                    {clickedChampion === champion && (
+                      <tr>
+                        <td>
+                          {/* Put your detailed data about the clickedChampion here */}
+                          <div>
+                            <h3>Details for {champion.champion}</h3>
+                            {/* Other details... */}
+                          </div>
+                        </td>
+                      </tr>
+                    )}
+                  </>
+                ))}
+            </tbody>
+          </table>
+        </div>
+      );
+    } else if (navSort == "Gold") {
+      return (
+        <div>
+          <h2>Champions by Gold</h2>
+          <table>
+            <thead>
+              <tr>
+                <th>Champion</th>
+                <th>Game Count</th>
+                <th>Gold/min</th>
+              </tr>
+            </thead>
+            <tbody>
+              {Array.isArray(championData) &&
+                championData.map((champion: any, index: any) => (
+                  // your code
+
+                  <>
+                    <tr
+                      key={index}
+                      onClick={() => handleChampionClick(champion)}
+                    >
+                      <td>
+                        {(() => {
+                          const championGames = Gameservice.getGamesForChampion(
+                            playerDataList,
+                            champion.champion
+                          );
+
+                          return (
+                            <>
+                              <div className="champion-img-name">
+                                {index + 1}
+                                <img src={champion.image}></img>
+                                <p className="white">{champion.name}</p>
+                              </div>
+                            </>
+                          );
+                        })()}
+                      </td>
+                      <td>{champion.count}</td>
+                      <td className="white">
+                        {champion.avgGoldEarnedPerMinute}
+                      </td>
+                    </tr>
+                    {clickedChampion === champion && (
+                      <tr>
+                        <td>
+                          {/* Put your detailed data about the clickedChampion here */}
+                          <div>
+                            <h3>Details for {champion.champion}</h3>
+                            {/* Other details... */}
+                          </div>
+                        </td>
+                      </tr>
+                    )}
+                  </>
+                ))}
+            </tbody>
+          </table>
+        </div>
+      );
+    } else if (navSort == "Games") {
+      return (
+        <div>
+          <h2>Champions by Games</h2>
+          <table>
+            <thead>
+              <tr>
+                <th>Champion</th>
+                <th>Game Count</th>
+              </tr>
+            </thead>
+            <tbody>
+              {Array.isArray(championData) &&
+                championData.map((champion: any, index: any) => (
+                  // your code
+
+                  <>
+                    <tr
+                      key={index}
+                      onClick={() => handleChampionClick(champion)}
+                    >
+                      <td>
+                        {(() => {
+                          const championGames = Gameservice.getGamesForChampion(
+                            playerDataList,
+                            champion.champion
+                          );
+
+                          return (
+                            <>
+                              <div className="champion-img-name">
+                                {index + 1}
+                                <img src={champion.image}></img>
+                                <p className="white">{champion.name}</p>
+                              </div>
+                            </>
+                          );
+                        })()}
+                      </td>
+                      <td>{champion.count}</td>
+                    </tr>
+                    {clickedChampion === champion && (
+                      <tr>
+                        <td>
+                          {/* Put your detailed data about the clickedChampion here */}
+                          <div>
+                            <h3>Details for {champion.champion}</h3>
+                            {/* Other details... */}
+                          </div>
+                        </td>
+                      </tr>
+                    )}
+                  </>
+                ))}
             </tbody>
           </table>
         </div>
@@ -200,11 +455,6 @@ export default function Champions({
 
   return (
     <div>
-      <button onClick={() => setShowFiltered(!showFiltered)}>
-        {showFiltered
-          ? "Show All Champions"
-          : "Show Champions with Game Count >= 2"}
-      </button>
       <RenderChampionTables
         championsByKDA={championsByKDA}
         championsByGames={championsByGames}
@@ -213,20 +463,3 @@ export default function Champions({
     </div>
   );
 }
-
-const cleanChampionName = (name: string) => {
-  let cleanedName = name.replace(/[^a-zA-Z]/g, ""); // Remove all characters that are not letters
-
-  // Make the first letter following an apostrophe lowercase
-  if (name.includes("'")) {
-    const pos = name.indexOf("'");
-    if (pos < name.length - 1) {
-      const letterAfterApostrophe = name.charAt(pos + 1).toLowerCase();
-      cleanedName =
-        cleanedName.slice(0, pos) +
-        letterAfterApostrophe +
-        cleanedName.slice(pos + 1);
-    }
-  }
-  return cleanedName;
-};

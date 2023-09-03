@@ -133,6 +133,10 @@
   font-weight: 600;
 }
 
+.scout-team-details {
+  padding: 50px;
+}
+
 .scout-team {
   width: 200px;
   padding: 30px 50px;
@@ -157,9 +161,7 @@
 }
 
 .player-stats {
-  border-bottom: 1px solid var(--background-light);
-  padding: 5%;
-  margin-bottom: 20px;
+  margin: 20px 0px;
 }
 
 .championstats {
@@ -174,7 +176,6 @@
   display: flex;
   background-color: var(--background-dark);
   padding: 2%;
-  margin-right: 10px;
   border-radius: 20px;
   border: 1px solid var(--stroke);
   align-items: center;
@@ -183,26 +184,36 @@
 .champion-stats img {
   height: 50px;
   width: 50px;
-  margin-right: 10px;
 }
 
 .team-details-header {
-  padding: 50px 20px 100px 20px;
+  padding: 50px 20px 50px 20px;
+  max-width: 450px;
+  min-width: 300px;
+  min-height: 400px;
   display: flex;
   align-items: center;
-  border-bottom: 1px solid var(--stroke);
+  flex-direction: column;
+  justify-content: center;
+}
+
+.teamname-scout {
+  text-align: center;
 }
 
 .teamlogo-header {
   min-width: 100px;
   border-radius: 20rem;
-  margin-right: 20px;
 }
 .opgg {
-  width: 40px;
+  min-width: 60px;
   border-radius: 10px;
-  margin-left: 20px;
   margin-top: 5px;
+  cursor: pointer;
+}
+
+.opgg:hover {
+  border: 1px solid var(--purple);
 }
 
 .team-scout button {
@@ -213,7 +224,7 @@
   padding: 10px 20px;
   color: white;
   font-weight: 600;
-  margin-top: 40px;
+  margin: 20px 0px;
   cursor: pointer;
 }
 
@@ -223,4 +234,79 @@
 
 .rank-ladder {
   margin-right: 20px;
+}
+
+.player-stats {
+  background-color: var(--background);
+  border: 1px solid var(--stroke);
+  border-radius: 20px;
+}
+
+.team-player-cnt {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-right: 20px;
+  cursor: pointer;
+}
+
+.team-player-stat {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.team-player-stat h3 {
+  color: gray;
+  margin-right: 20px;
+  font-weight: 400;
+  font-size: 16px;
+}
+
+.player-stats:hover {
+  border: 1px solid var(--purple);
+}
+
+.top-teamscout {
+  display: flex;
+  margin-bottom: 20px;
+}
+
+.divbg {
+  background-color: var(--background-dark);
+  border-radius: 20px;
+  border: 1px solid var(--stroke);
+}
+
+.champion-player-data {
+  background-color: var(--background-dark);
+  border: 1px solid var(--stroke);
+  margin: 10px;
+  border-radius: 10px;
+  padding: 10px 50px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  color: gray;
+}
+
+.championstats {
+  width: 70%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.champion-player-data img {
+  margin-right: 20px;
+}
+
+.summoner-player {
+  color: gray;
+  margin-left: 20px;
+}
+
+.team-overall {
+  margin-left: 20px;
+  width: 100%;
 }

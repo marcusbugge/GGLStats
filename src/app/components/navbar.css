@@ -21,3 +21,16 @@
   background-color: var(--background-light);
   margin-top: 30px;
 }
+
+.beta {
+  background-color: var(--purple);
+  padding: 2px 5px;
+  border-radius: 10px;
+  font-size: 12px;
+  margin-right: 5px;
+}
+
+.ladder {
+  display: flex;
+  align-items: center;
+}

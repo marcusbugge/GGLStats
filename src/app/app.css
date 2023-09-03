@@ -1,6 +1,19 @@
 body {
   background-color: var(--background-dark);
+  display: flex;
+}
+
+html {
+  background-color: var(--background-dark);
   padding: 2%;
+}
+
+.main {
+  display: flex;
+}
+
+.page-cnt {
+  display: flex;
 }
 
 .app {
@@ -119,4 +132,8 @@ select {
 
 .sort-option.active {
   background-color: var(--purple);
+}
+
+.player-page {
+  background-color: var(--background-dark);
 }

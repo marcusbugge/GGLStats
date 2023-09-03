@@ -13,45 +13,82 @@ import Player from "./components/Player";
 import TeamScouter from "./components/TeamScouter";
 import LadderService from "./services/Ladderservice";
 import Champions from "./components/Champions";
+import Deaths from "./components/Deaths";
+import { Userservice } from "./services/Userservice";
+import SortButtons from "./components/SortButtons";
 
 type SortPreference =
   | "Player"
   | "Champion"
-  | "Team"
+  | "Standings"
   | "Team Scouter"
   | "Ladder";
 
-function Eks() {
-  const [navSort, setNavSort] = useState("KDA");
+const divisionIds: Record<string, number> = {
+  "1.div": 11408,
+  "2.div": 11451,
+  "3.div A": 11490,
+  "3.div B": 11491,
+  "3.div C": 11492,
+  "4.div A": 11493,
+  "4.div B": 11494,
+  "4.div C": 11495,
+};
+
+function Eks({ setSortPreference, navSort, setNavSort, viewPreference }: any) {
   const [playerStats, setPlayerStats] = useState<PlayerData[]>([]);
+  const [playerStatsTest, setPlayerStatsTest] = useState<[]>([]);
   const [selectedDivision, setSelectedDivision] = useState<any>("1.div");
-  const [viewPreference, setViewPreference] =
-    useState<SortPreference>("Player");
-  const [sortPreference, setSortPreference] =
-    useState<SortPreference>("Player");
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     setLoading(true); // Set loading to true before fetch
-    fetchAllPlayerStats(selectedDivision).then((data) => {
-      setPlayerStats(data);
-      setLoading(false); // Set loading to false after data is fetched
-    });
+
+    // Fetch player stats
+    const fetchPlayerData = async () => {
+      console.log("selected div", divisionIds[selectedDivision]);
+
+      const data = await Userservice.getPlayersStats({
+        division: divisionIds[selectedDivision],
+      });
+      console.log("Fetched player data:", data);
+
+      setPlayerStatsTest(data);
+      setLoading(false);
+
+      // set it to state if needed
+    };
+
+    fetchPlayerData();
   }, [selectedDivision]);
 
-  const playersByKills = Gameservice.getPlayersByKills(playerStats);
-  const playersByDeaths = Gameservice.getPlayersByDeaths(playerStats);
-  const playersByAssists = Gameservice.getPlayersByAssists(playerStats);
-  const playersByKDA = Gameservice.getPlayersByKDA(playerStats);
-  // Placeholder. You'll need to implement these methods in the Gameservice.
-  const championsByWinrate = Gameservice.getChampionWinrate(playerStats);
-  const championsByGames = Gameservice.getChampionsByGamesPlayed(playerStats);
-  const championsByKDA = Gameservice.getChampionKDAGames(playerStats);
+  const sortOptionsPlayer = [
+    "Best overall",
+    "KDA",
+    "Kills",
+    "Deaths",
+    "Assists",
+    "Vision",
+    "KP",
+    "Farm",
+    "Damage",
+    "Gold",
+  ];
 
-  console.log("stats", playerStats);
-  console.log("stats by kills", playersByKills);
+  const sortOptionsChampion = ["Games", "Winrate", "KDA", "Farm", "KP", "Gold"];
+  const sortOptionsTeam = ["Winrate", "Kills", "Deaths"];
+  const sortOptionsLadder = ["Show all", "Division", "Team"];
 
-  // const championsByDeaths = Gameservice.getChampionsByDeaths(playerStats);
-  //const championsByAssists = Gameservice.getChampionsByAssists(playerStats);
+  let sortOptions;
+  if (viewPreference === "Player") {
+    sortOptions = sortOptionsPlayer;
+  } else if (viewPreference === "Champion") {
+    sortOptions = sortOptionsChampion;
+  } else if (viewPreference === "Standings") {
+    sortOptions = sortOptionsTeam;
+  } else if (viewPreference === "Ladder") {
+    sortOptions = sortOptionsLadder;
+  }
 
   const handleDivisionChange = (
     event: React.ChangeEvent<HTMLSelectElement>
@@ -59,62 +96,10 @@ function Eks() {
     setSelectedDivision(event.target.value);
   };
 
-  const handleSortOptionClick = (option: SortPreference) => {
-    setSortPreference(option);
-    setViewPreference(option);
-  };
-
-  const [loading, setLoading] = useState(true);
-
-  const renderTeamsTables = () => {
-    const teams = Teamservice.getPlayersByTeamWithStats(playerStats);
-
-    return (
-      <>
-        {Object.entries(teams).map(([teamName, players]) => (
-          <div key={teamName} style={{ padding: "20px", marginBottom: "30px" }}>
-            <h2>{teamName}</h2>
-            <table>
-              <thead>
-                <tr>
-                  <th>Name</th>
-                  <th>IGN</th>
-                  <th>Total Kills</th>
-                  <th>Kills/game</th>
-                </tr>
-              </thead>
-              <tbody>
-                {players.map((player) => (
-                  <tr key={player.user_id}>
-                    <td className="white flagname">
-                      {" "}
-                      <img
-                        src={`https://flagsapi.com/${player.nationality}/flat/64.png`}
-                        alt={`${player.nationality} flag`}
-                      />
-                      {player.user_name}
-                    </td>
-                    <td>{player.nickname}</td>
-                    <td>{player.totalKills}</td>
-                    <td>{player.killsPerGame}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        ))}
-      </>
-    );
-  };
-
   console.log(selectedDivision);
 
   return (
     <div className="app">
-      <Navbar
-        setNavSort={setNavSort}
-        handleSortOptionClick={handleSortOptionClick}
-      />
       <div className="content">
         <div className="content-nav">
           <div>
@@ -132,68 +117,39 @@ function Eks() {
               <option value="4.div C">4.div C</option>
             </select>
           </div>
-          <div className="sorts-cnt">
+          <div>
             {viewPreference === "Player" && (
               <>
-                <div
-                  className={`sort-option ${navSort === "KDA" ? "active" : ""}`}
-                  onClick={() => setNavSort("KDA")}
-                >
-                  KDA
-                </div>
-                <div
-                  className={`sort-option ${
-                    navSort === "Kills" ? "active" : ""
-                  }`}
-                  onClick={() => setNavSort("Kills")}
-                >
-                  Kills
-                </div>
-                <div
-                  className={`sort-option ${
-                    navSort === "Deaths" ? "active" : ""
-                  }`}
-                  onClick={() => setNavSort("Deaths")}
-                >
-                  Deaths
-                </div>
-                <div
-                  className={`sort-option ${
-                    navSort === "Assists" ? "active" : ""
-                  }`}
-                  onClick={() => setNavSort("Assists")}
-                >
-                  Assists
-                </div>
+                <SortButtons
+                  options={sortOptionsPlayer}
+                  selectedSort={navSort}
+                  onSortClick={setNavSort}
+                />
               </>
             )}
             {viewPreference === "Champion" && (
               <>
-                <div
-                  className={`sort-option ${navSort === "KDA" ? "active" : ""}`}
-                  onClick={() => setNavSort("KDA")}
-                >
-                  KDA
-                </div>
-                <div
-                  className={`sort-option ${
-                    navSort === "Winrate" ? "active" : ""
-                  }`}
-                  onClick={() => setNavSort("Winrate")}
-                >
-                  Winrate
-                </div>
-                <div
-                  className={`sort-option ${
-                    navSort === "Games" ? "active" : ""
-                  }`}
-                  onClick={() => setNavSort("Games")}
-                >
-                  Games
-                </div>
+                <SortButtons
+                  options={sortOptionsChampion}
+                  selectedSort={navSort}
+                  onSortClick={setNavSort}
+                />
               </>
             )}
-            {viewPreference === "Team" && null}
+            {viewPreference === "Standings" && (
+              <SortButtons
+                options={sortOptionsTeam}
+                selectedSort={navSort}
+                onSortClick={setNavSort}
+              />
+            )}
+            {viewPreference === "Ladder" && (
+              <SortButtons
+                options={sortOptionsLadder}
+                selectedSort={navSort}
+                onSortClick={setNavSort}
+              />
+            )}
           </div>
         </div>
 
@@ -203,38 +159,31 @@ function Eks() {
             <Player
               loading={loading}
               navSort={navSort}
-              playersByKills={playersByKills}
-              playersByDeaths={playersByDeaths}
-              playersByAssists={playersByAssists}
-              playersByKDA={playersByKDA}
+              playerTest={playerStatsTest}
+              division={selectedDivision}
             />
           )}
           {viewPreference === "Champion" && (
             <Champions
-              championsByKDA={championsByKDA}
-              championsByGames={championsByGames}
-              championsByWinrate={championsByWinrate}
               playerDataList={playerStats}
               loading={loading}
               navSort={navSort}
             />
           )}
           {viewPreference === "Ladder" && (
-            <LadderService players={playerStats} />
+            <LadderService players={playerStatsTest} navSort={navSort} />
           )}
-          {viewPreference === "Team" && renderTeamsTables()}
+          {viewPreference === "Standings" && (
+            <Standings divisionId={selectedDivision} />
+          )}
           {viewPreference === "Team Scouter" && (
             <TeamScouter
               divisionId={selectedDivision}
-              playerStats={playerStats}
+              playerStats={playerStatsTest}
             />
           )}
         </div>
       </div>
-      {selectedDivision !== undefined &&
-        (viewPreference === "Team" || viewPreference === "Team Scouter") && (
-          <Standings divisionId={selectedDivision} />
-        )}
     </div>
   );
 }

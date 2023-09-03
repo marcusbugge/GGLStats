@@ -38,7 +38,7 @@ export default function Navbar({ setNavSort, handleSortOptionClick }: any) {
           onClick={() => handleSortClick("Team")}
           className={activeSort === "Team" ? "active" : ""}
         >
-          Teams
+          Standings
         </h2>
 
         <div className="nav-line"></div>
@@ -51,9 +51,9 @@ export default function Navbar({ setNavSort, handleSortOptionClick }: any) {
         </h2>
         <h2
           onClick={() => handleSortClick("Ladder")}
-          className={activeSort === "Ladder" ? "active" : ""}
+          className={activeSort === "Ladder" ? "active ladder" : "ladder"}
         >
-          SoloQ Ladder
+          <span className="beta white">BETA</span>SoloQ Ladder
         </h2>
       </div>
     </div>

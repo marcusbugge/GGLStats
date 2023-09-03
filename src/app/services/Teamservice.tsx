@@ -1,77 +1,74 @@
 "use client";
 
+import axios from "axios";
 import { Gameservice } from "./Gameservice";
 
-// Inside your Teamservice class
-// Inside your Teamservice class
-export class Teamservice {
-  static getPlayersByTeamWithStats(
-    playerDataList: PlayerData[]
-  ): Record<string, PlayerDataWithStats[]> {
-    const teams: Record<string, PlayerDataWithStats[]> = {};
+const divisionIds: Record<string, number> = {
+  "1.div": 11408,
+  "2.div": 11451,
+  "3.div A": 11490,
+  "3.div B": 11491,
+  "3.div C": 11492,
+  "4.div A": 11493,
+  "4.div B": 11494,
+  "4.div C": 11495,
+};
 
-    // Generate statistics for each player using Gameservice methods
-    const kdaStats = Gameservice.getPlayersByKDA(playerDataList);
-    const killsStats = Gameservice.getPlayersByKills(playerDataList);
-    const deathsStats = Gameservice.getPlayersByDeaths(playerDataList);
-    const assistsStats = Gameservice.getPlayersByAssists(playerDataList);
-
-    playerDataList.forEach((playerData) => {
-      const teamName = playerData.team_name;
-      if (!teams[teamName]) {
-        teams[teamName] = [];
-      }
-
-      // Find the player stats
-      const kdaStat = kdaStats.find(
-        (stat) => stat.user_id === playerData.user_id
-      );
-      const killsStat = killsStats.find(
-        (stat) => stat.user_id === playerData.user_id
-      );
-      const deathsStat = deathsStats.find(
-        (stat) => stat.user_id === playerData.user_id
-      );
-      const assistsStat = assistsStats.find(
-        (stat) => stat.user_id === playerData.user_id
-      );
-
-      // Attach the stats to the player data
-      const playerWithStats: PlayerDataWithStats = {
-        ...playerData,
-        kda: kdaStat?.kda || 0,
-        totalKills: killsStat?.totalKills || 0,
-        totalDeaths: deathsStat?.totalDeaths || 0,
-        totalAssists: assistsStat?.totalAssists || 0,
-        killsPerGame: killsStat?.killsPerGame || 0,
-        deathsPerGame: deathsStat?.deathsPerGame || 0,
-        assistsPerGame: assistsStat?.assistsPerGame || 0,
-      };
-
-      teams[teamName].push(playerWithStats);
-    });
-
-    // Sort the player stats within each team in descending order based on different metrics
-    for (const teamName in teams) {
-      teams[teamName].sort((a, b) => {
-        // Sorting logic can be adjusted based on your specific needs.
-        // Here it's sorted by KDA, then totalKills, then totalAssists.
-        if (b.kda !== a.kda) return Number(b.kda) - Number(a.kda);
-        if (b.totalKills !== a.totalKills) return b.totalKills - a.totalKills;
-        return b.totalAssists - a.totalAssists;
-      });
-    }
-
-    return teams;
-  }
+interface Params {
+  division: number;
+  playerStatsTest: any; // Consider replacing 'any' with a proper type
 }
 
-export interface PlayerDataWithStats extends PlayerData {
-  kda: number | string; // or 'Perfect'
-  totalKills: number;
-  totalDeaths: number;
-  totalAssists: number;
-  killsPerGame: number;
-  deathsPerGame: number;
-  assistsPerGame: number;
+export class Teamservice {
+  static async getPlayersByTeamWithStats(params: Params) {
+    const { division } = params;
+    console.log("dividiv", division);
+
+    const axiosConfig = {
+      headers: {
+        Authorization: "Bearer 22|jDom6Dw36tOiG0BMrUWTH2HBbu5SoAVZOv3M9rmD",
+        Accept: "application/json",
+      },
+    };
+
+    try {
+      // Get players
+      const playerReponse = await axios.get(
+        `https://corsproxy.io/?https://www.gamer.no/api/paradise/v2/division/${division}/players`,
+        { headers: axiosConfig.headers }
+      );
+      const players = playerReponse.data;
+
+      // Get teams
+      const teamReponse = await axios.get(
+        `https://corsproxy.io/?https://www.gamer.no/api/paradise/v2/division/${division}/tables`,
+        { headers: axiosConfig.headers }
+      );
+      const teams = teamReponse.data;
+
+      // Create a mapping of team IDs to team names
+      const teamNameMap: Record<string, string> = {};
+      for (const team of teams) {
+        teamNameMap[team.id] = team.name;
+      }
+
+      // Check if players is iterable
+      if (players && Array.isArray(players)) {
+        for (const player of players) {
+          const teamId = player.team_id;
+          const teamName = teamNameMap[teamId] || "Unknown";
+          player.teamName = teamName; // Add the teamName attribute to each player object
+
+          console.log("teamname", teamName);
+        }
+      } else {
+        console.error("Received non-iterable data for players:", players);
+      }
+
+      console.log("Retrieved teams:", teams);
+      console.log("Retrieved players with team names:", players);
+    } catch (error) {
+      console.error("Failed to retrieve players:", error);
+    }
+  }
 }

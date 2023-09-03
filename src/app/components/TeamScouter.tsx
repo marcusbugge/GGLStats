@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import "./components.css";
 import { Teamservice } from "../services/Teamservice";
+import { Bar } from "react-chartjs-2";
 
 const divisionIds: Record<string, number> = {
   "1.div": 11408,
@@ -17,172 +18,206 @@ export default function TeamScouter({ divisionId, playerStats }: any) {
   const [divisionData, setDivisionData] = useState<any>(null);
   const [selectedTeam, setSelectedTeam] = useState<any>(null);
   const [teams, setTeams] = useState<any[]>([]);
+  const [playerChampionData, setPlayerChampionData] = useState<any>({});
+  const [selectedPlayer, setSelectedPlayer] = useState<any>(null);
+  const [clickedPlayerId, setClickedPlayerId] = useState<number | null>(null);
+
+  const [selectedPlayerGames, setSelectedPlayerGames] = useState<any>([]);
+
+  console.log("Tamscout players", playerStats);
 
   useEffect(() => {
     const actualId = divisionIds[divisionId];
     if (actualId) {
       fetch(
-        `https://corsproxy.io/?https://www.gamer.no/api/paradise/competition/11710/tables`
+        `https://corsproxy.io/?https://www.gamer.no/api/paradise/competition/11710/tables`,
+        {
+          headers: {
+            Authorization: "Bearer 22|jDom6Dw36tOiG0BMrUWTH2HBbu5SoAVZOv3M9rmD",
+            Accept: "application/json",
+          },
+        }
       )
-        .then((response: any) => response.json())
-        .then((data: any) => {
+        .then((response) => response.json())
+        .then((data) => {
           const division = data.find((div: any) => div.id === actualId);
           setDivisionData(division);
         })
-        .catch((error: any) => console.error("Error fetching data:", error));
+        .catch((error) => console.error("Error fetching data:", error));
     } else {
       console.error(`Unknown divisionId: ${divisionId}`);
     }
   }, [divisionId]);
 
-  const handleTeamClick = (team: any) => {
-    setSelectedTeam(team);
-    const enhancedTeams = Teamservice.getPlayersByTeamWithStats(playerStats);
-    const playersForClickedTeam = enhancedTeams[team.team.name] || [];
-    setTeams(playersForClickedTeam);
-  };
+  useEffect(() => {
+    if (teams.length > 0) {
+      const fetchData = async () => {
+        const newPlayerChampionData: any = {};
 
-  const calculateChampionKDA = ({ kills, deaths, assists }: any) => {
-    return deaths === 0 ? Infinity : (kills + assists) / deaths;
-  };
+        for (const player of teams) {
+          const response = await fetch(
+            `https://corsproxy.io/?https://www.gamer.no/api/paradise/v2/user/${player.user.id}/stats/lol/champions?division_id=${divisionIds[divisionId]}`,
+            {
+              headers: {
+                Authorization:
+                  "Bearer 22|jDom6Dw36tOiG0BMrUWTH2HBbu5SoAVZOv3M9rmD",
+                Accept: "application/json",
+              },
+            }
+          );
+          const data = await response.json();
+          newPlayerChampionData[player.user.id] = data.data;
+        }
 
-  const cleanChampionName = (name: string) => {
-    return name.replace(/[^a-zA-Z]/g, "");
-  };
+        setPlayerChampionData(newPlayerChampionData);
+        console.log("playerchampiondata", playerChampionData);
+      };
 
-  const renderChampionStats = (
-    champion: string,
-    statsArray: any[],
-    playerName: string,
-    gamesCount?: number
-  ) => {
-    const kda = calculateChampionKDA(statsArray[0]);
-    let kdaColor;
-
-    if (kda >= 5) {
-      kdaColor = "rgb(232, 64, 87)";
-    } else if (kda >= 4 && kda < 5) {
-      kdaColor = "rgb(0, 147, 255)";
-    } else if (kda > 3 && kda < 4) {
-      kdaColor = "#00BBA3";
-    } else {
-      kdaColor = "default-color"; // Replace with your default color
+      fetchData();
     }
+  }, [teams, divisionId]);
 
-    const cleanName = cleanChampionName(champion);
+  const handleTeamClick = (team: any) => {
+    const filteredPlayers = filterPlayersByTeam(team.team.id);
+    setTeams(filteredPlayers);
+    setSelectedTeam(team);
+  };
 
-    return (
-      <div className="champion-stats">
-        <img
-          src={`https://ddragon.leagueoflegends.com/cdn/13.8.1/img/champion/${cleanName}.png`}
-          alt={champion}
-          width="40"
-          height="40"
-        />
-        <p style={{ color: kdaColor }}>
-          KDA: {isFinite(kda) ? kda.toFixed(2) : "Perfect"}
-        </p>
-        {gamesCount !== undefined && (
-          <p>
-            {` `}
-            --Games: {gamesCount}
-          </p>
-        )}
-      </div>
-    );
+  const filterPlayersByTeam = (teamId: any) => {
+    return playerStats.filter((player: any) => player.team_id === teamId);
   };
 
   const renderPlayerStats = (player: any) => {
-    const championsWithKDA = Object.entries(player.champions).map(
-      ([champion, statsArray]: any) => {
-        return {
-          champion,
-          kda: calculateChampionKDA(statsArray[0]),
-          statsArray,
-        };
-      }
-    );
+    const handlePlayerClick = () => {
+      setClickedPlayerId(player.user.id);
+    };
+    // Retrieve the array of champions for this player
+    const championData = playerChampionData[player.user.id] || [];
 
-    const sortedChampions = championsWithKDA.sort(
-      (a: any, b: any) => b.kda - a.kda
-    );
-    const top3Champions = sortedChampions.slice(0, 3);
+    // Initialize variables to hold the total win count and total games played
+    let totalWinCount = 0;
+    let totalGamesPlayed = 0;
 
-    const championsWithGames = Object.entries(player.champions).map(
-      ([champion, statsArray]: any) => {
-        return {
-          champion,
-          games: statsArray.length,
-        };
-      }
-    );
+    // Loop through each champion to sum up the win count and total games
+    championData?.forEach((champ: any) => {
+      totalWinCount += champ.winCount;
+      totalGamesPlayed += champ.count;
+    });
 
-    const sortedChampionsByGames = championsWithGames.sort(
-      (a: any, b: any) => b.games - a.games
-    );
-    const top3PickedChampions = sortedChampionsByGames.slice(0, 3);
+    // Calculate the overall win rate
+    let overallWinRate;
+    if (totalGamesPlayed === 0) {
+      overallWinRate = "..."; // Or set to 100 or 0 based on what you consider appropriate
+    } else {
+      overallWinRate = ((totalWinCount / totalGamesPlayed) * 100).toFixed(2);
+    }
+
+    // Sort the array based on the 'count' field
+    const sortedChampionData = [...championData]
+      .sort((a, b) => b.count - a.count)
+      .slice(0, 5);
 
     return (
       <div className="player-stats">
-        <div className="flagname">
-          <img
-            src={`https://flagsapi.com/${player.nationality}/flat/64.png`}
-            alt={`${player.nationality} flag`}
-          />
-          <h2 className="white">{player.nickname}</h2>
-        </div>
         <div>
-          <h4 className="white top3">Top 3 champions by KDA</h4>
-          <div className="championstats">
-            {top3Champions.map(({ champion, statsArray }: any) =>
-              renderChampionStats(champion, statsArray, player.name)
-            )}
+          <div className="team-player-cnt" onClick={() => handlePlayerClick()}>
+            <div className="white flagname">
+              <img
+                src={`https://flagsapi.com/${player.user.nationality}/flat/64.png`}
+                alt={`${player.nationality} flag`}
+              />
+              <h2 className="white">{player.nickname}</h2>
+              <h4 className="summoner-player">{player.stats?.summonerName}</h4>
+            </div>
+            <div className="team-player-stat">
+              <h3>{totalGamesPlayed} games</h3>
+              <h4 className="white">{overallWinRate}% WR</h4>
+            </div>
           </div>
-        </div>
-        <div>
-          <h4 className="white top3">Top 3 most picked champions</h4>
-          <div className="championstats">
-            {top3PickedChampions.map(({ champion, games }: any) =>
-              renderChampionStats(
-                champion,
-                player.champions[champion],
-                player.name,
-                games
-              )
-            )}
-          </div>
+
+          {clickedPlayerId === player.user.id && (
+            <div className="player-games">
+              {championData.map((game: any, index: number) => (
+                <div className="champion-player-data" key={index}>
+                  {/* Render each individual game's info here */}
+                  <div className="champion-img-name">
+                    <img src={game.image}></img>
+                    <p className="white">{game.name}</p>
+                  </div>
+
+                  <div className="championstats">
+                    Games:
+                    <p className="white">{game.count} </p>
+                    KDA:{" "}
+                    <p className="white">
+                      {(
+                        (game.avgKills + game.avgAssists) /
+                        game.avgDeaths
+                      ).toFixed(2)}
+                    </p>
+                    CS/m:
+                    <p className="white">{game.avgMinionsKilledPerMinute}</p>
+                    Gold/m:
+                    <p className="white">{game.avgGoldEarnedPerMinute}</p>
+                    KP:
+                    <p className="white">{game.avgKillParticipation}%</p>
+                    WR:
+                    <p className="white">
+                      {((game.winCount / game.count) * 100).toFixed(2)}%
+                    </p>
+                  </div>
+
+                  {/* ... etc */}
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       </div>
     );
   };
 
+  const renderIndividualGames = () => {};
+
   const renderTeamDetails = () => {
-    const playerNames = teams.map((player) => player.nickname).join("%2C");
+    const playerNames = teams
+      .map((player) => player.stats.summonerName)
+      .join("%2C");
     return (
       <div className="team-scout">
-        <button onClick={() => setSelectedTeam(null)}>Go Back</button>
-        <div className="team-details-header">
-          <img
-            src={selectedTeam.team.logo.url}
-            alt={selectedTeam.team.name}
-            width="100"
-            height="100"
-            className="teamlogo-header"
-          />
-          <h1 className="white">{selectedTeam.name}</h1>
-          <a
-            href={`https://www.op.gg/multisearch/euw?summoners=${playerNames}`}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
+        <button
+          onClick={() => {
+            setSelectedTeam(null);
+            setTeams([]); // Clear the teams
+          }}
+        >
+          Go Back
+        </button>
+        <div className="top-teamscout">
+          <div className="team-details-header divbg">
             <img
-              src="https://s-lol-web.op.gg/images/reverse.rectangle.png"
-              alt="opgg"
-              className="opgg"
+              src={selectedTeam.team.logo.url}
+              alt={selectedTeam.team.name}
+              width="100"
+              height="100"
+              className="teamlogo-header"
             />
-          </a>
+            <h1 className="teamname-scout white">{selectedTeam.name}</h1>
+            <a
+              href={`https://www.op.gg/multisearch/euw?summoners=${playerNames}`}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <img
+                src="https://s-lol-web.op.gg/images/reverse.rectangle.png"
+                alt="opgg"
+                className="opgg"
+              />
+            </a>
+          </div>
+          <div className="team-overall divbg"></div>
         </div>
-        <div className="scout-team-details">
+        <div className="scout-team-details divbg">
           {teams.map((player: any) => renderPlayerStats(player))}
         </div>
       </div>
@@ -209,5 +244,9 @@ export default function TeamScouter({ divisionId, playerStats }: any) {
     </div>
   );
 
-  return selectedTeam ? renderTeamDetails() : renderTeamsList();
+  return selectedPlayer
+    ? renderIndividualGames()
+    : selectedTeam
+    ? renderTeamDetails()
+    : renderTeamsList();
 }
