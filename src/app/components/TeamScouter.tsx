@@ -166,8 +166,6 @@ export default function TeamScouter({ divisionId, playerStats }: any): any {
                       {((game.winCount / game.count) * 100).toFixed(2)}%
                     </p>
                   </div>
-
-                  {/* ... etc */}
                 </div>
               ))}
             </div>
