@@ -14,7 +14,7 @@ const divisionIds: Record<string, number> = {
   "4.div C": 11495,
 };
 
-export default function TeamScouter({ divisionId, playerStats }: any) {
+export default function TeamScouter({ divisionId, playerStats }: any): any {
   const [divisionData, setDivisionData] = useState<any>(null);
   const [selectedTeam, setSelectedTeam] = useState<any>(null);
   const [teams, setTeams] = useState<any[]>([]);
@@ -177,7 +177,9 @@ export default function TeamScouter({ divisionId, playerStats }: any) {
     );
   };
 
-  const renderIndividualGames = () => {};
+  const renderIndividualGames = () => {
+    <div></div>;
+  };
 
   const renderTeamDetails = () => {
     const playerNames = teams
