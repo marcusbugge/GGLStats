@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Navbar from "./components/Navbar";
-import Eks from "./Eks.tsx";
+import Eks from "./Eks";
 
 type SortPreference =
   | "Player"
