@@ -3,7 +3,13 @@
 import axios from "axios";
 
 export class Userservice {
-  static async getPlayersStats({ division }: { division: number }) {
+  static async getPlayersStats({
+    division,
+    season,
+  }: {
+    division: number;
+    season: string;
+  }) {
     console.log("Division:", division); // Add this line
 
     try {
@@ -24,13 +30,13 @@ export class Userservice {
         championStatsPlayer,
       ] = await Promise.all([
         axios.get(
-          "https://corsproxy.io/?https://www.gamer.no/api/paradise/v2/competition/11710",
+          `https://corsproxy.io/?https://www.gamer.no/api/paradise/v2/competition/${season}`,
           {
             headers: axiosConfig.headers,
           }
         ),
         axios.get(
-          "https://corsproxy.io/?https://www.gamer.no/api/paradise/v2/competition/11710/divisions",
+          `https://corsproxy.io/?https://www.gamer.no/api/paradise/v2/competition/${season}/divisions`,
           { headers: axiosConfig.headers }
         ),
         axios.get(

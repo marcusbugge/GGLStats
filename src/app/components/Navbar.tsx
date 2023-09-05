@@ -35,8 +35,8 @@ export default function Navbar({ setNavSort, handleSortOptionClick }: any) {
           Champions
         </h2>
         <h2
-          onClick={() => handleSortClick("Team")}
-          className={activeSort === "Team" ? "active" : ""}
+          onClick={() => handleSortClick("Standings")}
+          className={activeSort === "Standings" ? "active" : ""}
         >
           Standings
         </h2>

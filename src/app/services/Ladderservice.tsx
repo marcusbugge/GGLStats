@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+import { log } from "console";
+import { log10 } from "chart.js/helpers";
 
 interface Player {
   summonerName: string;
@@ -61,21 +63,6 @@ const LadderService = ({ players, navSort }: LadderServiceProps) => {
     IV: 1,
   };
 
-  const fetchDivisionPlayers = async (divisionIds: string[]) => {
-    const headers = {
-      Authorization: "Bearer 22|jDom6Dw36tOiG0BMrUWTH2HBbu5SoAVZOv3M9rmD",
-      "Content-Type": "application/json",
-    };
-    const promises = divisionIds.map((id) =>
-      fetch(
-        `https://corsproxy.io/?https://www.gamer.no/api/paradise/v2/division/${id}/players`,
-        { headers }
-      ).then((response) => response.json())
-    );
-
-    return await Promise.all(promises);
-  };
-
   const fetchDivisionStats = async (divisionIds: string[]) => {
     const headers = {
       Authorization: "Bearer 22|jDom6Dw36tOiG0BMrUWTH2HBbu5SoAVZOv3M9rmD",
@@ -99,7 +86,7 @@ const LadderService = ({ players, navSort }: LadderServiceProps) => {
     )}`;
     const response = await fetch(url);
     const data = await response.text();
-    console.log("Fetched raw rank data: ", data); // Add this line to debu
+
     return parseRankData(data);
   };
 
@@ -121,7 +108,6 @@ const LadderService = ({ players, navSort }: LadderServiceProps) => {
         rankMap.set(name, { rank, LP });
       }
     }
-    console.log("rankmap");
 
     return rankMap;
   };
@@ -140,21 +126,23 @@ const LadderService = ({ players, navSort }: LadderServiceProps) => {
           "https://corsproxy.io/?https://www.gamer.no/api/paradise/v2/competition/11710/divisions",
           { headers }
         );
-        const divisions = await divisionsResponse.json();
 
-        const allPlayerStats = await fetchDivisionStats(
-          divisions.map((d: any) => d.id)
+        const allDivisions = await divisionsResponse.json();
+
+        // Filter out divisions with order greater than 3
+        const filteredDivisions = allDivisions.filter(
+          (division: any) => division.order <= 5
         );
 
-        console.log("allplayerstats", allPlayerStats);
+        const allPlayerStats = await fetchDivisionStats(
+          filteredDivisions.map((d: any) => d.id)
+        );
 
         const updatedPlayerInfo: Player[] = [];
 
         for (let i = 0; i < allPlayerStats.length; i++) {
           const stats = allPlayerStats[i];
-          const division = divisions[i];
-
-          console.log("statssss", stats);
+          const division = allDivisions[i];
 
           for (const player of stats) {
             const summonerName = player.summonerName || "Unknown";
@@ -228,7 +216,6 @@ const LadderService = ({ players, navSort }: LadderServiceProps) => {
     };
 
     fetchData();
-    console.log("all", allPlayerInfo);
   }, []);
 
   if (isLoading) {
@@ -238,12 +225,19 @@ const LadderService = ({ players, navSort }: LadderServiceProps) => {
   return (
     <div>
       <h2>GGL SoloQ Ladder</h2>
+
+      <p>
+        <strong className="white">Note: </strong>
+        Some players may encounter difficulty locating their profiles. This
+        could be due to special characters in their usernames or a potential bug
+        in the system.
+      </p>
       <table>
         <thead>
           <tr>
             <th>Name</th>
             <th>IGN</th>
-            <th>Team</th>
+
             <th>Division</th>
             <th>Rank</th>
           </tr>
@@ -260,7 +254,7 @@ const LadderService = ({ players, navSort }: LadderServiceProps) => {
                 {player.user_name}
               </td>
               <td>{player.summonerName}</td>
-              <td>{player.teamId}</td>
+
               <td>{player.division}</td>
               <td className="white">
                 {player.rank?.rank} - {player.rank?.LP}

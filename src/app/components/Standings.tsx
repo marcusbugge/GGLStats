@@ -1,29 +1,19 @@
 import React, { useEffect, useState } from "react";
 import "./components.css";
 
-const divisionIds: Record<string, number> = {
-  "1.div": 11408,
-  "2.div": 11451,
-  "3.div A": 11490,
-  "3.div B": 11491,
-  "3.div C": 11492,
-  "4.div A": 11493,
-  "4.div B": 11494,
-  "4.div C": 11495,
-};
-
-export default function Standings({ divisionId }: any) {
+export default function Standings({ divisionId, selectedSeason }: any) {
   const [divisionData, setDivisionData] = useState<Division2 | null>(null);
 
+  console.log("hello");
+
   useEffect(() => {
-    const actualId = divisionIds[divisionId];
-    if (typeof actualId !== "undefined") {
+    if (typeof divisionId !== "undefined") {
       fetch(
-        `https://corsproxy.io/?https://www.gamer.no/api/paradise/competition/11710/tables`
+        `https://corsproxy.io/?https://www.gamer.no/api/paradise/competition/${selectedSeason}/tables`
       )
         .then((response) => response.json())
         .then((data) => {
-          const division = data.find((div: Division2) => div.id === actualId);
+          const division = data.find((div: Division2) => div.id === divisionId);
           if (division) {
             setDivisionData(division);
           }
@@ -50,13 +40,14 @@ export default function Standings({ divisionId }: any) {
             </tr>
           </thead>
           <tbody>
-            {divisionData?.signups.map((signup: any) => {
+            {divisionData?.signups.map((signup: any, index) => {
               // Calculating the score differential
               const scoreDifferential = signup.score_for - signup.score_against;
               return (
                 <tr key={signup.id}>
                   <td>
                     <div className="standing-team">
+                      <p>{index + 1}</p>
                       <a href={signup.team.url}>
                         <img
                           src={signup.team.logo.url}

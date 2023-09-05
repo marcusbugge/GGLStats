@@ -20,7 +20,7 @@ export default function RootLayout({
     | "Team Scouter"
     | "Ladder";
 
-  const [navSort, setNavSort] = useState("KDA");
+  const [navSort, setNavSort] = useState("Overall");
   const [sortPreference, setSortPreference] =
     useState<SortPreference>("Player");
 

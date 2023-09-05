@@ -16,6 +16,7 @@ import Champions from "./components/Champions";
 import Deaths from "./components/Deaths";
 import { Userservice } from "./services/Userservice";
 import SortButtons from "./components/SortButtons";
+import axios from "axios";
 
 type SortPreference =
   | "Player"
@@ -36,34 +37,71 @@ const divisionIds: Record<string, number> = {
 };
 
 function Eks({ setSortPreference, navSort, setNavSort, viewPreference }: any) {
-  const [playerStats, setPlayerStats] = useState<PlayerData[]>([]);
-  const [playerStatsTest, setPlayerStatsTest] = useState<[]>([]);
-  const [selectedDivision, setSelectedDivision] = useState<any>("1.div");
+  const [playerStats, setPlayerStats] = useState([]);
+  const [playerStatsTest, setPlayerStatsTest] = useState([]);
+  const [fetchedDivisions, setFetchedDivisions] = useState<any[]>([]);
+  const [selectedDivision, setSelectedDivision] = useState("");
+  const [selectedSeason, setSelectedSeason] = useState("11710");
   const [loading, setLoading] = useState(true);
 
+  // Fetch divisions
   useEffect(() => {
-    setLoading(true); // Set loading to true before fetch
+    const fetchDivisions = async () => {
+      try {
+        const response = await axios.get(
+          `https://corsproxy.io/?https://www.gamer.no/api/paradise/v2/competition/${selectedSeason}/divisions`,
+          {
+            headers: {
+              Authorization:
+                "Bearer 22|jDom6Dw36tOiG0BMrUWTH2HBbu5SoAVZOv3M9rmD",
+              Accept: "application/json",
+            },
+          }
+        );
+        setFetchedDivisions(response.data);
+        // Try to set to "1. divisjon" by default, otherwise set to the first division in the list
+        const defaultDivision =
+          response.data.find((div: any) => div.name === "1. divisjon") ||
+          response.data[0];
 
-    // Fetch player stats
-    const fetchPlayerData = async () => {
-      console.log("selected div", divisionIds[selectedDivision]);
-
-      const data = await Userservice.getPlayersStats({
-        division: divisionIds[selectedDivision],
-      });
-      console.log("Fetched player data:", data);
-
-      setPlayerStatsTest(data);
-      setLoading(false);
-
-      // set it to state if needed
+        if (defaultDivision) {
+          setSelectedDivision(defaultDivision.name);
+        }
+      } catch (error) {
+        console.error("Error fetching divisions:", error);
+      }
     };
+    fetchDivisions();
+  }, [selectedSeason]); // Runs when selectedSeason changes
 
-    fetchPlayerData();
-  }, [selectedDivision]);
+  // Fetch player stats
+  useEffect(() => {
+    if (selectedDivision && selectedSeason) {
+      // Only proceed if both are set
+      const fetchPlayerData = async () => {
+        setLoading(true);
+        const divisionId = fetchedDivisions.find(
+          (div) => div.name === selectedDivision
+        ).id;
+        const data = await Userservice.getPlayersStats({
+          division: divisionId,
+          season: selectedSeason,
+        });
+        setPlayerStatsTest(data);
+        setLoading(false);
+      };
+      fetchPlayerData();
+    }
+  }, [selectedDivision, selectedSeason, fetchedDivisions]); // Runs when any of these change
+
+  useEffect(() => {
+    if (viewPreference === "Champion" && !navSort) {
+      setNavSort("Games"); // Setting "Games" as the default sort for Champions.
+    }
+  }, [viewPreference, navSort]);
 
   const sortOptionsPlayer = [
-    "Best overall",
+    "Overall",
     "KDA",
     "Kills",
     "Deaths",
@@ -76,7 +114,7 @@ function Eks({ setSortPreference, navSort, setNavSort, viewPreference }: any) {
   ];
 
   const sortOptionsChampion = ["Games", "Winrate", "KDA", "Farm", "KP", "Gold"];
-  const sortOptionsTeam = ["Winrate", "Kills", "Deaths"];
+
   const sortOptionsLadder = ["Show all", "Division", "Team"];
 
   let sortOptions;
@@ -85,7 +123,6 @@ function Eks({ setSortPreference, navSort, setNavSort, viewPreference }: any) {
   } else if (viewPreference === "Champion") {
     sortOptions = sortOptionsChampion;
   } else if (viewPreference === "Standings") {
-    sortOptions = sortOptionsTeam;
   } else if (viewPreference === "Ladder") {
     sortOptions = sortOptionsLadder;
   }
@@ -96,25 +133,41 @@ function Eks({ setSortPreference, navSort, setNavSort, viewPreference }: any) {
     setSelectedDivision(event.target.value);
   };
 
+  const handleSeasonChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+    setSelectedSeason(event.target.value);
+  };
+
   console.log(selectedDivision);
+
+  // Find the division object from fetchedDivisions based on selectedDivision
+  const selectedDivisionObject = fetchedDivisions.find(
+    (division) => division.name === selectedDivision
+  );
+
+  // Extract the division ID from the selected division object
+  const actualDivisionID = selectedDivisionObject
+    ? selectedDivisionObject.id
+    : null;
 
   return (
     <div className="app">
       <div className="content">
         <div className="content-nav">
           <div>
-            <select>
-              <option value="Høst 2023">Høst 2023</option>
+            <select value={selectedSeason} onChange={handleSeasonChange}>
+              <option value="11710">Høst 2023</option>
+              <option value="11044">Vår 2023</option>
+              <option value="10429">Høst 2022</option>
             </select>
-            <select value={selectedDivision} onChange={handleDivisionChange}>
-              <option value="1.div">1.div</option>
-              <option value="2.div">2.div</option>
-              <option value="3.div A">3.div A</option>
-              <option value="3.div B">3.div B</option>
-              <option value="3.div C">3.div C</option>
-              <option value="4.div A">4.div A</option>
-              <option value="4.div B">4.div B</option>
-              <option value="4.div C">4.div C</option>
+            <select
+              value={selectedDivision}
+              onChange={(e) => setSelectedDivision(e.target.value)}
+            >
+              {fetchedDivisions.map((division, index) => (
+                <option key={index} value={division.name}>
+                  {division.name}
+                </option>
+              ))}
             </select>
           </div>
           <div>
@@ -138,7 +191,7 @@ function Eks({ setSortPreference, navSort, setNavSort, viewPreference }: any) {
             )}
             {viewPreference === "Standings" && (
               <SortButtons
-                options={sortOptionsTeam}
+                options={[]}
                 selectedSort={navSort}
                 onSortClick={setNavSort}
               />
@@ -154,13 +207,13 @@ function Eks({ setSortPreference, navSort, setNavSort, viewPreference }: any) {
         </div>
 
         <div className="tables">
-          {" "}
           {viewPreference === "Player" && (
             <Player
               loading={loading}
               navSort={navSort}
               playerTest={playerStatsTest}
               division={selectedDivision}
+              season={selectedSeason}
             />
           )}
           {viewPreference === "Champion" && (
@@ -168,18 +221,23 @@ function Eks({ setSortPreference, navSort, setNavSort, viewPreference }: any) {
               playerDataList={playerStats}
               loading={loading}
               navSort={navSort}
+              divisionID={actualDivisionID}
             />
           )}
           {viewPreference === "Ladder" && (
             <LadderService players={playerStatsTest} navSort={navSort} />
           )}
           {viewPreference === "Standings" && (
-            <Standings divisionId={selectedDivision} />
+            <Standings
+              divisionId={actualDivisionID}
+              selectedSeason={selectedSeason}
+            />
           )}
           {viewPreference === "Team Scouter" && (
             <TeamScouter
               divisionId={selectedDivision}
               playerStats={playerStatsTest}
+              selectedSeason={selectedSeason}
             />
           )}
         </div>

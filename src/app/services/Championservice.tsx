@@ -1,31 +1,43 @@
-"use client";
-
 import axios from "axios";
 
 export class Championservice {
-  static async getChampionData() {
+  static async getChampionData({
+    divisionID,
+  }: {
+    divisionID: string | number;
+  }) {
+    // Config for axios
+    const axiosConfig = {
+      headers: {
+        Authorization: "Bearer 22|jDom6Dw36tOiG0BMrUWTH2HBbu5SoAVZOv3M9rmD",
+        Accept: "application/json",
+      },
+    };
+
     try {
-      const axiosConfig = {
-        headers: {
-          Authorization: "Bearer 22|jDom6Dw36tOiG0BMrUWTH2HBbu5SoAVZOv3M9rmD",
-          Accept: "application/json",
-        },
-      };
+      console.log("div id", divisionID); // Logging the division ID for debugging
 
-      const [championStats, championStatsPlayer] = await Promise.all([
-        axios.get(
-          "https://corsproxy.io/?https://www.gamer.no/api/paradise/v2/division/11408/stats/lol/champions",
-          { headers: axiosConfig.headers }
-        ),
-        axios.get(
-          "https://corsproxy.io/?https://www.gamer.no/api/paradise/v2/user/2474/stats/lol/champions?division_id=11408",
-          { headers: axiosConfig.headers }
-        ),
-      ]);
+      if (divisionID === undefined) {
+        console.warn("divisionID is undefined");
+        return null;
+      }
 
-      return championStats.data;
-    } catch {
-      console.log("");
+      // Fetching the data
+      const response = await axios.get(
+        `https://corsproxy.io/?https://www.gamer.no/api/paradise/v2/division/${divisionID}/stats/lol/champions`,
+        axiosConfig
+      );
+
+      // Make sure to verify if response and response.data exist
+      if (response && response.data) {
+        return response.data;
+      } else {
+        console.warn("No data found");
+        return null;
+      }
+    } catch (error) {
+      console.error("An error occurred:", error);
+      throw error; // Optionally, you can propagate the error back to the caller
     }
   }
 }

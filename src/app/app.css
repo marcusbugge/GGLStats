@@ -5,7 +5,7 @@ body {
 
 html {
   background-color: var(--background-dark);
-  padding: 2%;
+  padding: 40px;
 }
 
 .main {
@@ -45,13 +45,14 @@ html {
 }
 
 .sorts-cnt div {
-  padding: 10px 20px;
+  padding: 10px 18px;
   background-color: var(--background);
   border: 1px solid var(--stroke);
   border-radius: 10px;
   color: whitesmoke;
   margin-right: 10px;
   margin-top: 50px;
+  font-size: 0.8em;
 }
 
 .tables {
@@ -59,6 +60,7 @@ html {
   border: 1px solid var(--stroke);
   border-radius: 20px;
   padding: 2vh 4vw;
+  margin-right: 50px;
 }
 
 .tables img {
@@ -76,7 +78,7 @@ table {
 }
 
 table th {
-  padding: 10px;
+  padding-bottom: 20px;
   text-align: left;
   border-bottom: 1px solid var(--background-light);
   color: var(--font-dark);
@@ -136,4 +138,23 @@ select {
 
 .player-page {
   background-color: var(--background-dark);
+}
+
+.champion-img-name p {
+  margin-right: 20px;
+}
+
+/** FOOTER **/
+
+.footer {
+  height: 25vh;
+  border-top: 1px solid var(--stroke);
+  margin-top: 100px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.footer div {
+  width: 60%;
 }

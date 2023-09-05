@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Navbar from "./components/Navbar";
 import Eks from "./Eks";
+import Footer from "./components/Footer";
 
 type SortPreference =
   | "Player"
@@ -12,7 +13,7 @@ type SortPreference =
   | "Ladder";
 
 export default function Home() {
-  const [navSort, setNavSort] = useState("KDA");
+  const [navSort, setNavSort] = useState("Overall");
   const [sortPreference, setSortPreference] =
     useState<SortPreference>("Player");
 
@@ -38,6 +39,7 @@ export default function Home() {
           viewPreference={viewPreference}
         />
       </div>
+      <Footer />
     </main>
   );
 }

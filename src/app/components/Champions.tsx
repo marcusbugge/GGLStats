@@ -6,460 +6,250 @@ import { Championservice } from "../services/Championservice";
 
 export default function Champions({
   navSort,
-  playersByKills,
-  playersByDeaths,
-  championsByKDA,
-  championsByGames,
-  championsByWinrate,
   playerDataList,
+  divisionID,
 }: any) {
-  const [showFiltered, setShowFiltered] = React.useState(false);
+  const [clickedChampion, setClickedChampion] = useState(null);
+  const [championData, setChampionData] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [minGameCount, setMinGameCount] = useState(0);
 
-  const [clickedChampion, setClickedChampion] = React.useState(null);
+  const [headerSort, setHeaderSort] = useState({
+    column: navSort.toLowerCase(),
+    order: "asc",
+  });
 
-  const [championGames, setChampionGames] = React.useState<any[]>([]);
+  useEffect(() => {
+    const defaultColumn = getDefaultColumnToSort(navSort);
 
-  const [championData, setChampionData]: any = useState([]);
-
-  const [loading, setLoading] = useState(true); // Initialize state to manage loading status
+    setHeaderSort({
+      column: defaultColumn,
+      order: "desc", // or 'asc' if you want ascending as default
+    });
+  }, [navSort]);
 
   useEffect(() => {
     const fetchChampionData = async () => {
-      const data = await Championservice.getChampionData();
-      setChampionData(data.data);
-      setLoading(false); // Set loading to false once the data is fetched
+      if (!divisionID) return;
+
+      try {
+        const { data } = await Championservice.getChampionData({ divisionID });
+        setChampionData(data);
+        setLoading(false);
+      } catch (error) {
+        console.error("An error occurred:", error);
+      }
+    };
+    fetchChampionData();
+  }, [divisionID]);
+
+  const mapping: any = {
+    Games: "count",
+    Winrate: "winrate",
+    KDA: "kda",
+    Farm: "avgMinionsKilledPerMinute",
+    KP: "avgKillParticipation",
+    Gold: "avgGoldEarnedPerMinute",
+  };
+
+  const getDefaultColumnToSort = (navSort: any) => {
+    return mapping[navSort] || "count";
+  };
+
+  const handleHeaderSort = (column: any) => {
+    const mappedColumn = mapping[column] || column;
+
+    setHeaderSort((prevState) => ({
+      column: mappedColumn,
+      order: prevState.order === "asc" ? "desc" : "asc",
+    }));
+  };
+  // Replace the existing sortedChampionData line with this
+  const sortedChampionData = [...championData]
+    .filter((champion) => champion.count >= minGameCount) // filter champions by game count
+
+    .sort((a: any, b: any) => {
+      let aValue: number = 0;
+      let bValue: number = 0;
+
+      if (headerSort.column === "winrate") {
+        aValue = a.winCount && a.count ? a.winCount / a.count : 0;
+        bValue = b.winCount && b.count ? b.winCount / b.count : 0;
+      } else if (headerSort.column === "kda") {
+        aValue = a.kills && a.deaths ? (a.kills + a.assists) / a.deaths : 0;
+        bValue = b.kills && b.deaths ? (b.kills + b.assists) / b.deaths : 0;
+
+        if (a.deaths === 0) aValue = Infinity;
+        if (b.deaths === 0) bValue = Infinity;
+      } else if (headerSort.column === "avgMinionsKilledPerMinute") {
+        // New code here
+        aValue = a.avgMinionsKilledPerMinute || 0;
+        bValue = b.avgMinionsKilledPerMinute || 0;
+      } else if (headerSort.column === "avgKillParticipation") {
+        // New code here
+        aValue = a.avgKillParticipation || 0;
+        bValue = b.avgKillParticipation || 0;
+      } else {
+        aValue = a[headerSort.column] ?? 0;
+        bValue = b[headerSort.column] ?? 0;
+      }
+
+      if (aValue === Infinity && bValue !== Infinity) return -1;
+      if (bValue === Infinity && aValue !== Infinity) return 1;
+
+      return headerSort.order === "asc" ? aValue - bValue : bValue - aValue;
+    });
+
+  console.log(sortedChampionData);
+  const RenderChampionTable = () => {
+    const headers: any = {
+      KDA: [
+        "Champion",
+        "Game Count",
+        "Kills/game",
+        "Deaths/game",
+        "Assists/game",
+        "KDA",
+      ],
+      Winrate: ["Champion", "Game Count", "Wins", "Loss", "Winrate"],
+      Games: ["Champion", "Game Count"],
+      Farm: ["Champion", "Game Count", "Farm"],
+      KP: ["Champion", "Game Count", "KP"],
+      Gold: ["Champion", "Game Count", "Gold"],
+      // Add more headers for each navSort type
     };
 
-    fetchChampionData(); // Call the function to fetch the data
-  }, []); // Empty dependency array to ensure the effect only runs once
+    const renderRowContent = (champion: any, navSort: any, index: number) => {
+      switch (navSort) {
+        case "KDA":
+          return (
+            <>
+              <div className="champion-img-name">
+                <p className="white">{index + 1}</p>
+                <img src={champion.image}></img>
+                <p className="white">{champion.name}</p>
+              </div>
+              <td>{champion.count}</td>
+              <td className="white">{champion.avgKills.toFixed(2)}</td>
+              <td className="white">{champion.avgDeaths.toFixed(2)}</td>
+              <td className="white">{champion.avgAssists.toFixed(2)}</td>
+              <td className="white">
+                {(
+                  (champion.kills + champion.assists) /
+                  champion.deaths
+                ).toFixed(2)}
+              </td>
+            </>
+          );
+        case "Winrate":
+          return (
+            <>
+              <div className="champion-img-name">
+                <p className="white">{index + 1}</p>
+                <img src={champion.image}></img>
+                <p className="white">{champion.name}</p>
+              </div>
+              <td>{champion.count}</td>
+              <td className="">{champion.winCount}</td>
+              <td className="">{champion.count - champion.winCount}</td>
+              <td className="white">
+                {((champion.winCount / champion.count) * 100).toFixed(2)}%
+              </td>
+            </>
+          );
 
-  console.log("asdjklfksdflks", championData);
+        case "Games":
+          return (
+            <>
+              <div className="champion-img-name">
+                <p className="white">{index + 1}</p>
+                <img src={champion.image}></img>
+                <p className="white">{champion.name}</p>
+              </div>
+              <td className="white">{champion.count}</td>
+            </>
+          );
+        case "Farm":
+          return (
+            <>
+              <div className="champion-img-name">
+                <p className="white">{index + 1}</p>
+                <img src={champion.image}></img>
+                <p className="white">{champion.name}</p>
+              </div>
+              <td className="">{champion.count}</td>
+              <td className="white">{champion.avgMinionsKilledPerMinute}</td>
+            </>
+          );
+        case "KP":
+          return (
+            <>
+              <div className="champion-img-name">
+                <p className="white">{index + 1}</p>
+                <img src={champion.image}></img>
+                <p className="white">{champion.name}</p>
+              </div>
+              <td className="">{champion.count}</td>
+              <td className="white">{champion.avgKillParticipation}%</td>
+            </>
+          );
+        case "Gold":
+          return (
+            <>
+              <div className="champion-img-name">
+                <p className="white">{index + 1}</p>
+                <img src={champion.image}></img>
+                <p className="white">{champion.name}</p>
+              </div>
+              <td className="">{champion.count}</td>
+              <td className="white">{champion.avgGoldEarnedPerMinute}</td>
+            </>
+          );
+        // Add more cases based on other types of sorting (e.g., 'Games', 'Lossrate', etc.)
+        default:
+          return null;
+      }
+    };
 
-  const handleChampionClick = async (champion: any) => {
-    console.log("champ", champion);
+    console.log("headers", headers);
+    console.log("navsort", navSort);
 
-    if (clickedChampion === champion) {
-      setClickedChampion(null); // Hide details if clicked again
-      setChampionGames([]); // Clear the games list
-    } else {
-      setClickedChampion(champion); // Show details
-
-      // Fetch or calculate championGames here, using your Gameservice or another method
-      const games = await Gameservice.getGamesForChampion(
-        playerDataList,
-        champion.champion
-      );
-
-      const gamesSort = games.sort((a, b) => b.kda - a.kda); // Sort games by KDA
-      setChampionGames(gamesSort);
-    }
+    return (
+      <div>
+        <h2>Champions by {navSort}</h2>
+        <div>
+          <label htmlFor="minGameCount">Minimum Game Count: </label>
+          <input
+            type="checkbox"
+            id="minGameCount"
+            value={minGameCount}
+            onClick={(e) => setMinGameCount(5)}
+          />
+        </div>
+        <table>
+          <thead>
+            <tr>
+              {headers
+                ? (headers[navSort] ?? []).map((header: any) => (
+                    <th
+                      key={header}
+                      onClick={() => handleHeaderSort(header.toLowerCase())}
+                    >
+                      {header}
+                    </th>
+                  ))
+                : null}
+            </tr>
+          </thead>
+          <tbody>
+            {sortedChampionData.map((champion, index) => (
+              <tr key={index}>{renderRowContent(champion, navSort, index)}</tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    );
   };
 
-  const RenderChampionTables = ({
-    championsByWinrate,
-    championsByGames,
-    championsByKDA,
-  }: any) => {
-    if (navSort == "KDA") {
-      return (
-        <div>
-          <h2>Champions by KDA</h2>
-          <table>
-            <thead>
-              <tr>
-                <th>Champion</th>
-                <th>Game Count</th>
-                <th>Kills/game</th>
-                <th>Deaths/game</th>
-                <th>Assists/game</th>
-                <th>KDA</th>
-              </tr>
-            </thead>
-            <tbody>
-              {Array.isArray(championData) &&
-                championData.map((champion: any, index: any) => (
-                  // your code
-
-                  <>
-                    <tr
-                      key={index}
-                      onClick={() => handleChampionClick(champion)}
-                    >
-                      <td>
-                        {(() => {
-                          const championGames = Gameservice.getGamesForChampion(
-                            playerDataList,
-                            champion.champion
-                          );
-
-                          return (
-                            <>
-                              <div className="champion-img-name">
-                                {index + 1}
-                                <img src={champion.image}></img>
-                                <p className="white">{champion.name}</p>
-                              </div>
-                            </>
-                          );
-                        })()}
-                      </td>
-                      <td>{champion.count}</td>
-                      <td className="white">{champion.avgKills.toFixed(2)}</td>
-                      <td className="white">{champion.avgDeaths.toFixed(2)}</td>
-                      <td className="white">
-                        {champion.avgAssists.toFixed(2)}
-                      </td>
-                      <td className="white">
-                        {(
-                          (champion.kills + champion.assists) /
-                          champion.deaths
-                        ).toFixed(2)}
-                      </td>
-                    </tr>
-                    {clickedChampion === champion && (
-                      <tr>
-                        <td>
-                          {/* Put your detailed data about the clickedChampion here */}
-                          <div>
-                            <h3>Details for {champion.champion}</h3>
-                            {/* Other details... */}
-                          </div>
-                        </td>
-                      </tr>
-                    )}
-                  </>
-                ))}
-            </tbody>
-          </table>
-        </div>
-      );
-    } else if (navSort == "Winrate") {
-      return (
-        <div>
-          <h2>Champions by Winrate</h2>
-          <table>
-            <thead>
-              <tr>
-                <th>Champion</th>
-                <th>Game Count</th>
-                <th>Wins</th>
-                <th>Loss</th>
-                <th>Winrate</th>
-              </tr>
-            </thead>
-            <tbody>
-              {Array.isArray(championData) &&
-                championData.map((champion: any, index: any) => (
-                  // your code
-
-                  <>
-                    <tr
-                      key={index}
-                      onClick={() => handleChampionClick(champion)}
-                    >
-                      <td>
-                        {(() => {
-                          const championGames = Gameservice.getGamesForChampion(
-                            playerDataList,
-                            champion.champion
-                          );
-
-                          return (
-                            <>
-                              <div className="champion-img-name">
-                                {index + 1}
-                                <img src={champion.image}></img>
-                                <p className="white">{champion.name}</p>
-                              </div>
-                            </>
-                          );
-                        })()}
-                      </td>
-                      <td>{champion.count}</td>
-                      <td>{champion.winCount}</td>
-                      <td>{champion.count - champion.winCount}</td>
-                      <td className="white">
-                        {((champion.winCount / champion.count) * 100).toFixed(
-                          2
-                        )}
-                        %
-                      </td>
-                    </tr>
-                    {clickedChampion === champion && (
-                      <tr>
-                        <td>
-                          {/* Put your detailed data about the clickedChampion here */}
-                          <div>
-                            <h3>Details for {champion.champion}</h3>
-                            {/* Other details... */}
-                          </div>
-                        </td>
-                      </tr>
-                    )}
-                  </>
-                ))}
-            </tbody>
-          </table>
-        </div>
-      );
-    } else if (navSort == "Farm") {
-      return (
-        <div>
-          <h2>Champions by Farm</h2>
-          <table>
-            <thead>
-              <tr>
-                <th>Champion</th>
-                <th>Game Count</th>
-                <th>CS/game</th>
-                <th>CS/min</th>
-              </tr>
-            </thead>
-            <tbody>
-              {Array.isArray(championData) &&
-                championData.map((champion: any, index: any) => (
-                  // your code
-
-                  <>
-                    <tr
-                      key={index}
-                      onClick={() => handleChampionClick(champion)}
-                    >
-                      <td>
-                        {(() => {
-                          const championGames = Gameservice.getGamesForChampion(
-                            playerDataList,
-                            champion.champion
-                          );
-
-                          return (
-                            <>
-                              <div className="champion-img-name">
-                                {index + 1}
-                                <img src={champion.image}></img>
-                                <p className="white">{champion.name}</p>
-                              </div>
-                            </>
-                          );
-                        })()}
-                      </td>
-                      <td>{champion.count}</td>
-                      <td className="white">
-                        {champion.avgTotalMinionsKilled.toFixed(0)}
-                      </td>
-                      <td className="white">
-                        {champion.avgMinionsKilledPerMinute}
-                      </td>
-                    </tr>
-                    {clickedChampion === champion && (
-                      <tr>
-                        <td>
-                          {/* Put your detailed data about the clickedChampion here */}
-                          <div>
-                            <h3>Details for {champion.champion}</h3>
-                            {/* Other details... */}
-                          </div>
-                        </td>
-                      </tr>
-                    )}
-                  </>
-                ))}
-            </tbody>
-          </table>
-        </div>
-      );
-    } else if (navSort == "KP") {
-      return (
-        <div>
-          <h2>Champions by KP</h2>
-          <table>
-            <thead>
-              <tr>
-                <th>Champion</th>
-                <th>Game Count</th>
-                <th>KP</th>
-              </tr>
-            </thead>
-            <tbody>
-              {Array.isArray(championData) &&
-                championData.map((champion: any, index: any) => (
-                  // your code
-
-                  <>
-                    <tr
-                      key={index}
-                      onClick={() => handleChampionClick(champion)}
-                    >
-                      <td>
-                        {(() => {
-                          const championGames = Gameservice.getGamesForChampion(
-                            playerDataList,
-                            champion.champion
-                          );
-
-                          return (
-                            <>
-                              <div className="champion-img-name">
-                                {index + 1}
-                                <img src={champion.image}></img>
-                                <p className="white">{champion.name}</p>
-                              </div>
-                            </>
-                          );
-                        })()}
-                      </td>
-                      <td>{champion.count}</td>
-                      <td className="white">
-                        {champion.avgKillParticipation}%
-                      </td>
-                    </tr>
-                    {clickedChampion === champion && (
-                      <tr>
-                        <td>
-                          {/* Put your detailed data about the clickedChampion here */}
-                          <div>
-                            <h3>Details for {champion.champion}</h3>
-                            {/* Other details... */}
-                          </div>
-                        </td>
-                      </tr>
-                    )}
-                  </>
-                ))}
-            </tbody>
-          </table>
-        </div>
-      );
-    } else if (navSort == "Gold") {
-      return (
-        <div>
-          <h2>Champions by Gold</h2>
-          <table>
-            <thead>
-              <tr>
-                <th>Champion</th>
-                <th>Game Count</th>
-                <th>Gold/min</th>
-              </tr>
-            </thead>
-            <tbody>
-              {Array.isArray(championData) &&
-                championData.map((champion: any, index: any) => (
-                  // your code
-
-                  <>
-                    <tr
-                      key={index}
-                      onClick={() => handleChampionClick(champion)}
-                    >
-                      <td>
-                        {(() => {
-                          const championGames = Gameservice.getGamesForChampion(
-                            playerDataList,
-                            champion.champion
-                          );
-
-                          return (
-                            <>
-                              <div className="champion-img-name">
-                                {index + 1}
-                                <img src={champion.image}></img>
-                                <p className="white">{champion.name}</p>
-                              </div>
-                            </>
-                          );
-                        })()}
-                      </td>
-                      <td>{champion.count}</td>
-                      <td className="white">
-                        {champion.avgGoldEarnedPerMinute}
-                      </td>
-                    </tr>
-                    {clickedChampion === champion && (
-                      <tr>
-                        <td>
-                          {/* Put your detailed data about the clickedChampion here */}
-                          <div>
-                            <h3>Details for {champion.champion}</h3>
-                            {/* Other details... */}
-                          </div>
-                        </td>
-                      </tr>
-                    )}
-                  </>
-                ))}
-            </tbody>
-          </table>
-        </div>
-      );
-    } else if (navSort == "Games") {
-      return (
-        <div>
-          <h2>Champions by Games</h2>
-          <table>
-            <thead>
-              <tr>
-                <th>Champion</th>
-                <th>Game Count</th>
-              </tr>
-            </thead>
-            <tbody>
-              {Array.isArray(championData) &&
-                championData.map((champion: any, index: any) => (
-                  // your code
-
-                  <>
-                    <tr
-                      key={index}
-                      onClick={() => handleChampionClick(champion)}
-                    >
-                      <td>
-                        {(() => {
-                          const championGames = Gameservice.getGamesForChampion(
-                            playerDataList,
-                            champion.champion
-                          );
-
-                          return (
-                            <>
-                              <div className="champion-img-name">
-                                {index + 1}
-                                <img src={champion.image}></img>
-                                <p className="white">{champion.name}</p>
-                              </div>
-                            </>
-                          );
-                        })()}
-                      </td>
-                      <td>{champion.count}</td>
-                    </tr>
-                    {clickedChampion === champion && (
-                      <tr>
-                        <td>
-                          {/* Put your detailed data about the clickedChampion here */}
-                          <div>
-                            <h3>Details for {champion.champion}</h3>
-                            {/* Other details... */}
-                          </div>
-                        </td>
-                      </tr>
-                    )}
-                  </>
-                ))}
-            </tbody>
-          </table>
-        </div>
-      );
-    }
-  };
-
-  return (
-    <div>
-      <RenderChampionTables
-        championsByKDA={championsByKDA}
-        championsByGames={championsByGames}
-        championsByWinrate={championsByWinrate}
-      />
-    </div>
-  );
+  return <div>{!loading && <RenderChampionTable />}</div>;
 }

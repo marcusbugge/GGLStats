@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from "react";
 
-export default function Player({ loading, navSort, playerTest }: any) {
+export default function Player({ loading, navSort, playerTest, season }: any) {
   const [isDataReady, setIsDataReady] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
 
   const defaultSortColumns: any = {
     Kills: "killsPerMap",
@@ -150,11 +151,25 @@ export default function Player({ loading, navSort, playerTest }: any) {
         })
     : [];
 
+  const filteredPlayerTest = sortedPlayerTest.filter((player) => {
+    const searchTermLower = searchTerm.toLowerCase();
+    return (
+      player.user.user_name.toLowerCase().includes(searchTermLower) ||
+      (player.stats?.summonerName &&
+        player.stats.summonerName.toLowerCase().includes(searchTermLower)) ||
+      (player.teamname &&
+        player.teamname.toLowerCase().includes(searchTermLower))
+    );
+  });
+
+  console.log("Filtered list: ", filteredPlayerTest); // Debugging line
+
   const RenderPlayerTables = ({ loading, navSort }: any) => {
     if (loading) {
       return (
         <div className="placeholder-player">
           <h2>Loading...</h2>
+
           <table className="sortable">
             <thead>
               <tr>
@@ -187,7 +202,7 @@ export default function Player({ loading, navSort, playerTest }: any) {
 
       return (
         <div>
-          <h2>Players by Kills</h2>
+          <div className="header-search"></div>
           <table>
             <thead>
               <tr>
@@ -227,7 +242,7 @@ export default function Player({ loading, navSort, playerTest }: any) {
               </tr>
             </thead>
             <tbody>
-              {sortedPlayerTest.map((player: any, index: any) => (
+              {filteredPlayerTest.map((player: any, index: any) => (
                 <tr key={index}>
                   <td className="white flagname">
                     {" "}
@@ -251,36 +266,52 @@ export default function Player({ loading, navSort, playerTest }: any) {
           </table>
         </div>
       );
-    } else if (navSort === "Best overall") {
+    } else if (navSort === "Overall") {
       return (
         <div>
-          <h2>Best player overall</h2>
           <p>
-            This is a stat that calculates the average placement across all
-            tables. Can be judged as the best performing player. <br></br>There
-            is also a stat that shows how many percent (%) each player are
-            "better" than their teammates. This can be <br></br>judged as how
-            much they have been carrying.
+            This statistic computes the average placement across all tables,
+            serving as an indicator of a player overall performance.
+            Additionally, we offer a metric that quantifies how much a player
+            outperforms their teammates, expressed as a percentage. This can be
+            interpreted as the extent to which a player carries the team.
           </p>
-          <p></p>
           <p>
-            (NB!) In later versions roles will take a part of the calculations,
-            because now support and top is capped by their role <br></br>due to
-            small numbers in some of the statistics.
-            <br></br>
+            <strong>Note:</strong> Future updates will factor in player roles
+            into these calculations. Currently, players in support and top roles
+            may find their statistics limited due to role-specific constraints.
           </p>
           <table>
             <thead>
               <tr>
                 <th>Name</th>
                 <th>IGN</th>
-                <th>Team</th>
-                <th>% better</th>
-                <th>Avg Placement</th>
+                <th
+                  onClick={() => handleHeaderSort("teamname")}
+                  className={headerSort.column === "teamname" ? "sortable" : ""}
+                >
+                  Team
+                </th>
+                <th
+                  onClick={() => handleHeaderSort("percentBetter")}
+                  className={
+                    headerSort.column === "percentBetter" ? "sortable" : ""
+                  }
+                >
+                  % better
+                </th>
+                <th
+                  onClick={() => handleHeaderSort("avgPlacement")}
+                  className={
+                    headerSort.column === "avgPlacement" ? "sortable" : ""
+                  }
+                >
+                  Avg Placement
+                </th>
               </tr>
             </thead>
             <tbody>
-              {sortedPlayerTest
+              {filteredPlayerTest
                 .sort((a, b) => a.avgPlacement - b.avgPlacement)
                 .map((player, index) => (
                   <tr key={index}>
@@ -293,6 +324,9 @@ export default function Player({ loading, navSort, playerTest }: any) {
                         alt={`${player.user.nationality} flag`}
                       />
                       {player.user.user_name}
+                      {player.user.role === "banned" ? (
+                        <p className="banned">💀</p>
+                      ) : null}
                     </td>
                     <td>{player.stats?.summonerName}</td>
                     <td>{player.teamname}</td>
@@ -307,7 +341,6 @@ export default function Player({ loading, navSort, playerTest }: any) {
     } else if (navSort === "Deaths") {
       return (
         <div>
-          <h2>Players by Deaths</h2>
           <table>
             <thead>
               <tr>
@@ -341,7 +374,7 @@ export default function Player({ loading, navSort, playerTest }: any) {
               </tr>
             </thead>
             <tbody>
-              {sortedPlayerTest.map((player: any, index: any) => (
+              {filteredPlayerTest.map((player: any, index: any) => (
                 <tr key={index + 1}>
                   <td className="white flagname">
                     {" "}
@@ -367,14 +400,20 @@ export default function Player({ loading, navSort, playerTest }: any) {
     if (navSort === "KDA") {
       return (
         <div>
-          <h2>Players by KDA</h2>
           <table>
             <thead>
               <tr>
                 <th>Name</th>
                 <th>IGN</th>
                 <th>Team</th>
-                <th>Games</th>
+                <th
+                  onClick={() => handleHeaderSort("mapsPlayed")}
+                  className={
+                    headerSort.column === "mapsPlayed" ? "sortable" : ""
+                  }
+                >
+                  Games
+                </th>
                 <th
                   onClick={() => handleHeaderSort("kadratio")}
                   className={headerSort.column === "kadratio" ? "sortable" : ""}
@@ -384,7 +423,7 @@ export default function Player({ loading, navSort, playerTest }: any) {
               </tr>
             </thead>
             <tbody>
-              {sortedPlayerTest.map((player: any, index: any) => (
+              {filteredPlayerTest.map((player: any, index: any) => (
                 <tr key={index + 1}>
                   <td className="white flagname">
                     {" "}
@@ -408,20 +447,38 @@ export default function Player({ loading, navSort, playerTest }: any) {
     } else if (navSort === "Assists") {
       return (
         <div>
-          <h2>Players by Assists</h2>
           <table>
             <thead>
               <tr>
                 <th>Name</th>
                 <th>IGN</th>
                 <th>Team</th>
-                <th>Games</th>
-                <th>Assists</th>
-                <th>Assists/game</th>
+                <th
+                  onClick={() => handleHeaderSort("mapsPlayed")}
+                  className={
+                    headerSort.column === "mapsPlayed" ? "sortable" : ""
+                  }
+                >
+                  Games
+                </th>
+                <th
+                  onClick={() => handleHeaderSort("assists")}
+                  className={headerSort.column === "assists" ? "sortable" : ""}
+                >
+                  Assists
+                </th>
+                <th
+                  onClick={() => handleHeaderSort("assistsPerMap")}
+                  className={
+                    headerSort.column === "assistsPerMap" ? "sortable" : ""
+                  }
+                >
+                  Assists/game
+                </th>
               </tr>
             </thead>
             <tbody>
-              {sortedPlayerTest.map((player: any, index: any) => (
+              {filteredPlayerTest.map((player: any, index: any) => (
                 <tr key={index + 1}>
                   <td className="white flagname">
                     {" "}
@@ -446,21 +503,50 @@ export default function Player({ loading, navSort, playerTest }: any) {
     } else if (navSort === "Vision") {
       return (
         <div>
-          <h2>Players by Vision</h2>
           <table>
             <thead>
               <tr>
                 <th>Name</th>
                 <th>IGN</th>
                 <th>Team</th>
-                <th>Games</th>
-                <th>Wards/Game</th>
-                <th>Controlwards/Game</th>
-                <th>Vision Score/Game</th>
+                <th
+                  onClick={() => handleHeaderSort("mapsPlayed")}
+                  className={
+                    headerSort.column === "mapsPlayed" ? "sortable" : ""
+                  }
+                >
+                  Games
+                </th>
+                <th
+                  onClick={() => handleHeaderSort("wardsPlaced")}
+                  className={
+                    headerSort.column === "wardsPlaced" ? "sortable" : ""
+                  }
+                >
+                  Wards/Game
+                </th>
+                <th
+                  onClick={() => handleHeaderSort("controlWardsPurchased")}
+                  className={
+                    headerSort.column === "controlWardsPurchased"
+                      ? "sortable"
+                      : ""
+                  }
+                >
+                  Controlwards/Game
+                </th>
+                <th
+                  onClick={() => handleHeaderSort("visionScore")}
+                  className={
+                    headerSort.column === "visionScore" ? "sortable" : ""
+                  }
+                >
+                  Vision Score/Game
+                </th>
               </tr>
             </thead>
             <tbody>
-              {sortedPlayerTest.map((player: any, index: any) => (
+              {filteredPlayerTest.map((player: any, index: any) => (
                 <tr key={index + 1}>
                   <td className="white flagname">
                     {" "}
@@ -474,9 +560,16 @@ export default function Player({ loading, navSort, playerTest }: any) {
                   <td>{player.stats?.summonerName}</td>
                   <td>{player.teamname}</td>
                   <td className="white">{player.stats?.mapsPlayed}</td>
-                  <td className="white">{player.stats?.wardsPlaced}</td>
                   <td className="white">
-                    {player.stats?.controlWardsPurchased}
+                    {(
+                      player.stats?.wardsPlaced / player.stats?.mapsPlayed
+                    ).toFixed(2)}
+                  </td>
+                  <td className="white">
+                    {(
+                      player.stats?.controlWardsPurchased /
+                      player.stats?.mapsPlayed
+                    ).toFixed(2)}
                   </td>
 
                   <td className="white">
@@ -493,7 +586,6 @@ export default function Player({ loading, navSort, playerTest }: any) {
     } else if (navSort === "KP") {
       return (
         <div>
-          <h2>Players by Kill Participation</h2>
           <table>
             <thead>
               <tr>
@@ -505,7 +597,7 @@ export default function Player({ loading, navSort, playerTest }: any) {
               </tr>
             </thead>
             <tbody>
-              {sortedPlayerTest.map((player: any, index: any) => (
+              {filteredPlayerTest.map((player: any, index: any) => (
                 <tr key={index + 1}>
                   <td className="white flagname">
                     {" "}
@@ -529,7 +621,6 @@ export default function Player({ loading, navSort, playerTest }: any) {
     } else if (navSort === "Farm") {
       return (
         <div>
-          <h2>Players by Farm</h2>
           <table>
             <thead>
               <tr>
@@ -541,7 +632,7 @@ export default function Player({ loading, navSort, playerTest }: any) {
               </tr>
             </thead>
             <tbody>
-              {sortedPlayerTest.map((player: any, index: any) => (
+              {filteredPlayerTest.map((player: any, index: any) => (
                 <tr key={index + 1}>
                   <td className="white flagname">
                     {" "}
@@ -567,7 +658,6 @@ export default function Player({ loading, navSort, playerTest }: any) {
     } else if (navSort === "Damage") {
       return (
         <div>
-          <h2>Players by Damage</h2>
           <table>
             <thead>
               <tr>
@@ -579,7 +669,7 @@ export default function Player({ loading, navSort, playerTest }: any) {
               </tr>
             </thead>
             <tbody>
-              {sortedPlayerTest.map((player: any, index: any) => (
+              {filteredPlayerTest.map((player: any, index: any) => (
                 <tr key={index + 1}>
                   <td className="white flagname">
                     {" "}
@@ -605,7 +695,6 @@ export default function Player({ loading, navSort, playerTest }: any) {
     } else if (navSort === "Gold") {
       return (
         <div>
-          <h2>Players by Gold</h2>
           <table>
             <thead>
               <tr>
@@ -618,7 +707,7 @@ export default function Player({ loading, navSort, playerTest }: any) {
               </tr>
             </thead>
             <tbody>
-              {sortedPlayerTest.map((player: any, index: any) => (
+              {filteredPlayerTest.map((player: any, index: any) => (
                 <tr key={index + 1}>
                   <td className="white flagname">
                     {" "}
@@ -649,6 +738,17 @@ export default function Player({ loading, navSort, playerTest }: any) {
   };
   return (
     <div>
+      {/* Move the search bar here to make it available in all tables */}
+      <div className="header-search">
+        <h2>Players by {navSort}</h2>
+        <input
+          type="text"
+          placeholder="Filter by player or team"
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+        />
+      </div>
+
       <RenderPlayerTables loading={loading} navSort={navSort} />
     </div>
   );
