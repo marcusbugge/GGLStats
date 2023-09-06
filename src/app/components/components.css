@@ -68,6 +68,10 @@
   color: white;
 }
 
+.header-search input:hover {
+  border: 1px solid var(--purple);
+}
+
 @keyframes loading {
   0% {
     background-position: 0 200%;
@@ -382,4 +386,43 @@
   display: flex;
   flex-direction: column;
   align-items: center;
+}
+
+.skull {
+  background-color: var(--purple);
+  padding: 3px 7px;
+  border-radius: 10px;
+  margin-left: 5px;
+}
+
+.checkbox {
+  display: flex;
+}
+
+.checkbox-3 {
+  color: gray;
+  display: flex;
+  align-items: center;
+  background-color: var(--background-dark);
+  border: 1px solid var(--stroke);
+  border-radius: 10px;
+  padding: 5px 10px;
+  margin-right: 10px;
+  cursor: pointer;
+}
+
+.checkbox-3:hover {
+  border: 1px solid var(--purple);
+}
+
+.buttonactive {
+  cursor: pointer;
+  background-color: var(--purple);
+  color: white;
+  display: flex;
+  align-items: center;
+  margin-right: 10px;
+  border: 1px solid var(--stroke);
+  border-radius: 10px;
+  padding: 5px 10px;
 }

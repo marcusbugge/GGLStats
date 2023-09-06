@@ -1,8 +1,11 @@
+"use client";
+
 import React, { useEffect, useState } from "react";
 
 export default function Player({ loading, navSort, playerTest, season }: any) {
   const [isDataReady, setIsDataReady] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
+  const [filterByGames, setFilterByGames] = useState(false);
 
   const defaultSortColumns: any = {
     Kills: "killsPerMap",
@@ -15,8 +18,6 @@ export default function Player({ loading, navSort, playerTest, season }: any) {
     Damage: "totalDamageToChampionsPerMinute",
     Gold: "goldEarnedPerMinute", // Update with the correct column
   };
-
-  console.log("playertest", playerTest);
 
   const [headerSort, setHeaderSort] = useState({
     column: defaultSortColumns[navSort],
@@ -87,6 +88,8 @@ export default function Player({ loading, navSort, playerTest, season }: any) {
 
   // Group players by their team
   const groupByTeam = (players: any) => {
+    console.log("players", players);
+
     return players.reduce((acc: any, player: any) => {
       (acc[player.teamname] = acc[player.teamname] || []).push(player);
       return acc;
@@ -153,16 +156,18 @@ export default function Player({ loading, navSort, playerTest, season }: any) {
 
   const filteredPlayerTest = sortedPlayerTest.filter((player) => {
     const searchTermLower = searchTerm.toLowerCase();
+    const moreThanThreeGames = filterByGames
+      ? player.stats?.mapsPlayed > 3
+      : true;
     return (
-      player.user.user_name.toLowerCase().includes(searchTermLower) ||
-      (player.stats?.summonerName &&
-        player.stats.summonerName.toLowerCase().includes(searchTermLower)) ||
-      (player.teamname &&
-        player.teamname.toLowerCase().includes(searchTermLower))
+      moreThanThreeGames &&
+      (player.user.user_name.toLowerCase().includes(searchTermLower) ||
+        (player.stats?.summonerName &&
+          player.stats.summonerName.toLowerCase().includes(searchTermLower)) ||
+        (player.teamname &&
+          player.teamname.toLowerCase().includes(searchTermLower)))
     );
   });
-
-  console.log("Filtered list: ", filteredPlayerTest); // Debugging line
 
   const RenderPlayerTables = ({ loading, navSort }: any) => {
     if (loading) {
@@ -198,8 +203,6 @@ export default function Player({ loading, navSort, playerTest, season }: any) {
       );
     }
     if (navSort === "Kills") {
-      console.log("sorted", sortedPlayerTest);
-
       return (
         <div>
           <div className="header-search"></div>
@@ -325,7 +328,7 @@ export default function Player({ loading, navSort, playerTest, season }: any) {
                       />
                       {player.user.user_name}
                       {player.user.role === "banned" ? (
-                        <p className="banned">💀</p>
+                        <p className="skull">💀</p>
                       ) : null}
                     </td>
                     <td>{player.stats?.summonerName}</td>
@@ -741,12 +744,21 @@ export default function Player({ loading, navSort, playerTest, season }: any) {
       {/* Move the search bar here to make it available in all tables */}
       <div className="header-search">
         <h2>Players by {navSort}</h2>
-        <input
-          type="text"
-          placeholder="Filter by player or team"
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-        />
+        <div className="checkbox">
+          <button
+            className={filterByGames ? "buttonactive" : "checkbox-3"}
+            onClick={() => setFilterByGames(!filterByGames)}
+          >
+            More than 3 games
+          </button>
+
+          <input
+            type="text"
+            placeholder="Filter by player or team"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
+        </div>
       </div>
 
       <RenderPlayerTables loading={loading} navSort={navSort} />

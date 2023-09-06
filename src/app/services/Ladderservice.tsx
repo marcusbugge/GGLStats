@@ -1,7 +1,4 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
-import { log } from "console";
-import { log10 } from "chart.js/helpers";
 
 interface Player {
   summonerName: string;

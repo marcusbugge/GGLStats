@@ -17,6 +17,7 @@ import Deaths from "./components/Deaths";
 import { Userservice } from "./services/Userservice";
 import SortButtons from "./components/SortButtons";
 import axios from "axios";
+import { GetServerSideProps } from "next";
 
 type SortPreference =
   | "Player"
@@ -137,8 +138,6 @@ function Eks({ setSortPreference, navSort, setNavSort, viewPreference }: any) {
     setSelectedSeason(event.target.value);
   };
 
-  console.log(selectedDivision);
-
   // Find the division object from fetchedDivisions based on selectedDivision
   const selectedDivisionObject = fetchedDivisions.find(
     (division) => division.name === selectedDivision
@@ -154,11 +153,6 @@ function Eks({ setSortPreference, navSort, setNavSort, viewPreference }: any) {
       <div className="content">
         <div className="content-nav">
           <div>
-            <select value={selectedSeason} onChange={handleSeasonChange}>
-              <option value="11710">Høst 2023</option>
-              <option value="11044">Vår 2023</option>
-              <option value="10429">Høst 2022</option>
-            </select>
             <select
               value={selectedDivision}
               onChange={(e) => setSelectedDivision(e.target.value)}
@@ -168,6 +162,12 @@ function Eks({ setSortPreference, navSort, setNavSort, viewPreference }: any) {
                   {division.name}
                 </option>
               ))}
+            </select>
+
+            <select value={selectedSeason} onChange={handleSeasonChange}>
+              <option value="11710">Høst 2023</option>
+              <option value="11044">Vår 2023</option>
+              <option value="10429">Høst 2022</option>
             </select>
           </div>
           <div>
@@ -231,6 +231,7 @@ function Eks({ setSortPreference, navSort, setNavSort, viewPreference }: any) {
             <Standings
               divisionId={actualDivisionID}
               selectedSeason={selectedSeason}
+              playerStats={playerStatsTest}
             />
           )}
           {viewPreference === "Team Scouter" && (

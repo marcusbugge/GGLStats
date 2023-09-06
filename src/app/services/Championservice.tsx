@@ -15,8 +15,6 @@ export class Championservice {
     };
 
     try {
-      console.log("div id", divisionID); // Logging the division ID for debugging
-
       if (divisionID === undefined) {
         console.warn("divisionID is undefined");
         return null;

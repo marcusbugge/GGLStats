@@ -4,6 +4,7 @@ import { useState } from "react";
 import Navbar from "./components/Navbar";
 import Eks from "./Eks";
 import Footer from "./components/Footer";
+import Script from "next/script";
 
 type SortPreference =
   | "Player"
@@ -23,8 +24,25 @@ export default function Home() {
     setSortPreference(option);
     setViewPreference(option);
   };
+
   return (
     <main>
+      <Script
+        strategy="lazyOnload"
+        src={`https://www.googletagmanager.com/gtag/js?id=${process.env.NEXT_PUBLIC_GOOGLE_ANALYTICS}`}
+      />
+
+      <Script id="my-script" strategy="lazyOnload">
+        {`
+                    window.dataLayer = window.dataLayer || [];
+                    function gtag(){dataLayer.push(arguments);}
+                    gtag('js', new Date());
+                    gtag('config', '${process.env.NEXT_PUBLIC_GOOGLE_ANALYTICS}', {
+                    page_path: window.location.pathname,
+                    });
+                `}
+      </Script>
+
       <div className="page-cnt">
         <Navbar
           navSort={navSort}

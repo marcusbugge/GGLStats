@@ -1,7 +1,6 @@
-"use client";
-
 import axios from "axios";
-
+import { getData } from "../api/getTest";
+import { GetServerSideProps } from "next";
 export class Userservice {
   static async getPlayersStats({
     division,
@@ -10,12 +9,10 @@ export class Userservice {
     division: number;
     season: string;
   }) {
-    console.log("Division:", division); // Add this line
-
     try {
       const axiosConfig = {
         headers: {
-          Authorization: "Bearer 22|jDom6Dw36tOiG0BMrUWTH2HBbu5SoAVZOv3M9rmD",
+          Authorization: `Bearer 22|jDom6Dw36tOiG0BMrUWTH2HBbu5SoAVZOv3M9rmD`,
           Accept: "application/json",
         },
       };
@@ -63,13 +60,9 @@ export class Userservice {
         ),
       ]);
 
-      console.log("divisons", divisions.data);
-      console.log("championstats", championStats.data);
-      console.log("championplayerstats", championStatsPlayer.data);
-      console.log("stats", stats.data);
-      console.log("competition", competition.data);
-      console.log("tables", tables.data);
-      console.log("players", players.data);
+      console.log(stats);
+
+      console.log(competition);
 
       const playerData: any = players.data.data.map((player: any): any => {
         // Find the corresponding teamInfo and stats for the player
@@ -96,9 +89,6 @@ export class Userservice {
           Object.keys(player.stats).length > 0
         );
       });
-
-      console.log("playerdata", playerData);
-      console.log("filtreed", filteredPlayerData);
 
       return filteredPlayerData;
     } catch (error) {

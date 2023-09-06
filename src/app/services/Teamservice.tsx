@@ -22,7 +22,6 @@ interface Params {
 export class Teamservice {
   static async getPlayersByTeamWithStats(params: Params) {
     const { division } = params;
-    console.log("dividiv", division);
 
     const axiosConfig = {
       headers: {
@@ -58,15 +57,10 @@ export class Teamservice {
           const teamId = player.team_id;
           const teamName = teamNameMap[teamId] || "Unknown";
           player.teamName = teamName; // Add the teamName attribute to each player object
-
-          console.log("teamname", teamName);
         }
       } else {
         console.error("Received non-iterable data for players:", players);
       }
-
-      console.log("Retrieved teams:", teams);
-      console.log("Retrieved players with team names:", players);
     } catch (error) {
       console.error("Failed to retrieve players:", error);
     }

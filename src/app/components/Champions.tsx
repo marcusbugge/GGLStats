@@ -105,17 +105,17 @@ export default function Champions({
     const headers: any = {
       KDA: [
         "Champion",
-        "Game Count",
+        "Count",
         "Kills/game",
         "Deaths/game",
         "Assists/game",
         "KDA",
       ],
-      Winrate: ["Champion", "Game Count", "Wins", "Loss", "Winrate"],
-      Games: ["Champion", "Game Count"],
-      Farm: ["Champion", "Game Count", "Farm"],
-      KP: ["Champion", "Game Count", "KP"],
-      Gold: ["Champion", "Game Count", "Gold"],
+      Winrate: ["Champion", "Count", "Wins", "Loss", "Winrate"],
+      Games: ["Champion", "Count"],
+      Farm: ["Champion", "Count", "Farm"],
+      KP: ["Champion", "Count", "KP"],
+      Gold: ["Champion", "Count", "Gold"],
       // Add more headers for each navSort type
     };
 
@@ -217,24 +217,13 @@ export default function Champions({
     return (
       <div>
         <h2>Champions by {navSort}</h2>
-        <div>
-          <label htmlFor="minGameCount">Minimum Game Count: </label>
-          <input
-            type="checkbox"
-            id="minGameCount"
-            value={minGameCount}
-            onClick={(e) => setMinGameCount(5)}
-          />
-        </div>
+
         <table>
           <thead>
             <tr>
               {headers
                 ? (headers[navSort] ?? []).map((header: any) => (
-                    <th
-                      key={header}
-                      onClick={() => handleHeaderSort(header.toLowerCase())}
-                    >
+                    <th key={header} onClick={() => handleHeaderSort(header)}>
                       {header}
                     </th>
                   ))
