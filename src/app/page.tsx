@@ -11,6 +11,7 @@ type SortPreference =
   | "Player"
   | "Champion"
   | "Standings"
+  | "Records"
   | "Team Scouter"
   | "Ladder";
 

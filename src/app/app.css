@@ -53,6 +53,7 @@ html {
   margin-right: 10px;
   margin-top: 50px;
   font-size: 0.8em;
+  box-shadow: rgba(0, 0, 0, 0.2) 0px 4px 12px;
 }
 
 .tables {
@@ -61,6 +62,7 @@ html {
   border-radius: 20px;
   padding: 2vh 4vw;
   margin-right: 50px;
+  box-shadow: rgba(0, 0, 0, 0.2) 0px 4px 20px;
 }
 
 .tables img {
@@ -123,7 +125,6 @@ select .option {
 
 .sorts-cnt {
   display: flex;
-  margin-top: 10px;
 }
 
 .sort-option {

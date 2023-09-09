@@ -78,6 +78,12 @@ export default function Navbar({ setNavSort, handleSortOptionClick }: any) {
           >
             Standings
           </h2>
+          <h2
+            onClick={() => handleSortClick("Records")}
+            className={activeSort === "Records" ? "active" : ""}
+          >
+            Records
+          </h2>
 
           <div className="nav-line"></div>
           <br></br>

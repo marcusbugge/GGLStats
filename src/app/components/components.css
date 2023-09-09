@@ -399,6 +399,47 @@
   display: flex;
 }
 
+.upcoming-game {
+  background-color: var(--background-dark);
+  border-radius: 20px;
+  border: 1px solid var(--stroke);
+  margin-bottom: 20px;
+  display: flex;
+
+  align-items: center;
+  padding: 0px 50px;
+}
+
+.opponent {
+  width: 60%;
+  display: flex;
+  align-items: center;
+}
+.opponent img {
+  max-width: 50px;
+  max-height: 50px;
+  border-radius: 30em;
+  margin: 0px 20px;
+}
+
+.matchdata {
+  display: flex;
+  align-items: center;
+  width: 40%;
+  text-decoration: none;
+  justify-content: space-between;
+}
+
+.matchdata a {
+  text-decoration: none;
+  color: gray;
+}
+
+.matchdata button:hover {
+  border: 1px solid var(--purple);
+  color: white;
+}
+
 .checkbox-3 {
   color: gray;
   display: flex;
@@ -425,4 +466,16 @@
   border: 1px solid var(--stroke);
   border-radius: 10px;
   padding: 5px 10px;
+}
+
+.win {
+  border: solid 2px rgb(138, 0, 0);
+}
+
+.loss {
+  background-color: red;
+}
+
+.selected-win {
+  border: solid 2px #006300;
 }

@@ -4,17 +4,6 @@ import { Teamservice } from "../services/Teamservice";
 import { Bar } from "react-chartjs-2";
 import axios from "axios";
 
-const divisionIds: Record<string, number> = {
-  "1.div": 11408,
-  "2.div": 11451,
-  "3.div A": 11490,
-  "3.div B": 11491,
-  "3.div C": 11492,
-  "4.div A": 11493,
-  "4.div B": 11494,
-  "4.div C": 11495,
-};
-
 const fetchData = async (url: any, headers = {}) => {
   try {
     const response = await fetch(url, { headers });
@@ -37,6 +26,8 @@ export default function TeamScouter({
   const [playerChampionData, setPlayerChampionData] = useState<any>({});
   const [selectedPlayer, setSelectedPlayer] = useState<any>(null);
   const [clickedPlayerId, setClickedPlayerId] = useState<number | null>(null);
+  const [upcomingMatches, setUpcomingMatches] = useState<any[]>([]);
+  const [finishedMatches, setFinishedMatches] = useState<any[]>([]);
   const [fetchedDivisions, setFetchedDivisions] = useState<
     Record<string, number>
   >({});
@@ -119,6 +110,45 @@ export default function TeamScouter({
 
     fetchDivisions();
   }, [selectedSeason]);
+
+  useEffect(() => {
+    console.log("team", selectedTeam);
+
+    if (selectedTeam) {
+      fetchUpcomingMatches(selectedTeam.team_id);
+      fetchFinishedMatches(selectedTeam.team_id);
+    }
+  }, [selectedTeam]);
+
+  const fetchUpcomingMatches = async (teamID: number) => {
+    try {
+      const url = `https://corsproxy.io/?https://www.gamer.no/api/paradise/team/${teamID}/matchups?page=1`;
+      const axiosConfig = {
+        headers: commonHeaders,
+      };
+
+      const response = await axios.get(url, axiosConfig);
+      setUpcomingMatches(response.data.data);
+    } catch (error) {
+      console.error("Failed to fetch upcoming matches:", error);
+    }
+  };
+
+  const fetchFinishedMatches = async (teamID: number) => {
+    console.log("dividisisi", divisionId);
+
+    try {
+      const url = `https://corsproxy.io/?https://www.gamer.no/api/paradise/v2/matchup?team_id=${teamID}&filter=finished&division_id=${fetchedDivisions[divisionId]}`;
+      const axiosConfig = {
+        headers: commonHeaders,
+      };
+
+      const response = await axios.get(url, axiosConfig);
+      setFinishedMatches(response.data.data);
+    } catch (error) {
+      console.error("Failed to fetch finished matches:", error);
+    }
+  };
 
   const handleTeamClick = (team: any) => {
     const filteredPlayers = filterPlayersByTeam(team.team.id);
@@ -326,6 +356,80 @@ export default function TeamScouter({
         </div>
         <div className="scout-team-details divbg">
           {teams.map((player: any) => renderPlayerStats(player))}
+        </div>
+
+        <div className="team-games">
+          {" "}
+          <div>
+            <h2>Finished Matches</h2>
+            {finishedMatches.map((match, index) => {
+              const homeTeamId = match.home_signup.team.id;
+              const awayTeamId = match.away_signup.team.id;
+
+              const isWinningTeam =
+                (homeTeamId === match.home_signup.team.id &&
+                  match.winning_side === "home") ||
+                (awayTeamId === match.away_signup.team.id &&
+                  match.winning_side === "away");
+
+              // Adding new condition for selectedTeam
+              const isSelectedAndWinningTeam =
+                (selectedTeam.team_id === homeTeamId &&
+                  match.winning_side === "home") ||
+                (selectedTeam.team_id === awayTeamId &&
+                  match.winning_side === "away");
+
+              // Update the className based on new condition
+              const className = isSelectedAndWinningTeam
+                ? "selected-win"
+                : isWinningTeam
+                ? "win"
+                : "loss";
+
+              return (
+                <div className={`upcoming-game ${className}`} key={index}>
+                  <h3 className="white opponent">
+                    <img
+                      src={match.home_signup.team.logo.url}
+                      alt="team logo"
+                    />
+                    {match.home_signup.name} - {match.away_signup.name}
+                    <img
+                      src={match.away_signup.team.logo.url}
+                      alt="team logo"
+                    />
+                  </h3>
+                  <div className="matchdata">
+                    <h3 className="white">
+                      {match.home_score} - {match.away_score}
+                    </h3>
+                    <a href={match.url}>
+                      <button>Details</button>
+                    </a>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+        <div>
+          <h2>Upcoming Matches</h2>
+          {upcomingMatches.map((match, index) => (
+            <div className="upcoming-game" key={index}>
+              <h3 className="white opponent">
+                <img src={match.home_signup.team.logo.url} alt="teamlogo" />
+                {match.home_signup.name} - {match.away_signup.name}{" "}
+                <img src={match.away_signup.team.logo.url} alt="teamlogo" />
+              </h3>
+              <div className="matchdata">
+                <p>Start time: {new Date(match.start_time).toLocaleString()}</p>{" "}
+                <a href={match.url}>
+                  {" "}
+                  <button>Details</button>
+                </a>
+              </div>
+            </div>
+          ))}
         </div>
       </div>
     );

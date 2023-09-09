@@ -1,5 +1,3 @@
-"use client";
-
 import "./app.css";
 
 import React, { useEffect, useState } from "react";
@@ -18,6 +16,7 @@ import { Userservice } from "./services/Userservice";
 import SortButtons from "./components/SortButtons";
 import axios from "axios";
 import { GetServerSideProps } from "next";
+import Hiscores from "./components/Hiscores";
 
 type SortPreference =
   | "Player"
@@ -37,8 +36,17 @@ const divisionIds: Record<string, number> = {
   "4.div C": 11495,
 };
 
-function Eks({ setSortPreference, navSort, setNavSort, viewPreference }: any) {
-  const [playerStats, setPlayerStats] = useState([]);
+function Eks({
+  setSortPreference,
+  navSort,
+  setNavSort,
+  viewPreference,
+  initialPlayerStats,
+}: any) {
+  const [playerStats, setPlayerStats] = useState(initialPlayerStats);
+
+  console.log("playerstatss sertver", playerStats);
+
   const [playerStatsTest, setPlayerStatsTest] = useState([]);
   const [fetchedDivisions, setFetchedDivisions] = useState<any[]>([]);
   const [selectedDivision, setSelectedDivision] = useState("");
@@ -196,13 +204,6 @@ function Eks({ setSortPreference, navSort, setNavSort, viewPreference }: any) {
                 onSortClick={setNavSort}
               />
             )}
-            {viewPreference === "Ladder" && (
-              <SortButtons
-                options={sortOptionsLadder}
-                selectedSort={navSort}
-                onSortClick={setNavSort}
-              />
-            )}
           </div>
         </div>
 
@@ -224,6 +225,7 @@ function Eks({ setSortPreference, navSort, setNavSort, viewPreference }: any) {
               divisionID={actualDivisionID}
             />
           )}
+          {viewPreference === "Records" && <Hiscores />}
           {viewPreference === "Ladder" && (
             <LadderService players={playerStatsTest} navSort={navSort} />
           )}
@@ -248,3 +250,28 @@ function Eks({ setSortPreference, navSort, setNavSort, viewPreference }: any) {
 }
 
 export default Eks;
+
+export const getServerSideProps: GetServerSideProps = async (context) => {
+  let playerStatsData = [];
+  try {
+    // Fetch the initial data for playerStats.
+    // Note: You'll need to determine how you're setting division and season.
+    const division = 11408; // Replace with actual value
+    const season = "11710"; // Replace with actual value
+    playerStatsData = await Userservice.getPlayersStats({
+      division,
+      season,
+    });
+    console.log("test");
+
+    console.log("serverside", playerStatsData);
+  } catch (error) {
+    console.error("Server-side data fetch error:", error);
+  }
+
+  return {
+    props: {
+      initialPlayerStats: playerStatsData,
+    },
+  };
+};

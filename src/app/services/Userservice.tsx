@@ -60,10 +60,6 @@ export class Userservice {
         ),
       ]);
 
-      console.log(stats);
-
-      console.log(competition);
-
       const playerData: any = players.data.data.map((player: any): any => {
         // Find the corresponding teamInfo and stats for the player
         const teamInfo = tables.data.find(
