@@ -17,6 +17,7 @@ import SortButtons from "./components/SortButtons";
 import axios from "axios";
 import { GetServerSideProps } from "next";
 import Hiscores from "./components/Hiscores";
+import Dropdown from "./components/Dropdown";
 
 type SortPreference =
   | "Player"
@@ -52,6 +53,12 @@ function Eks({
   const [selectedDivision, setSelectedDivision] = useState("");
   const [selectedSeason, setSelectedSeason] = useState("11710");
   const [loading, setLoading] = useState(true);
+
+  const seasonOptions = [
+    { name: "Høst 2023", value: "11710" },
+    { name: "Vår 2023", value: "11044" },
+    { name: "Høst 2022", value: "10429" },
+  ]; // Or fetch dynamically
 
   // Fetch divisions
   useEffect(() => {
@@ -160,23 +167,20 @@ function Eks({
     <div className="app">
       <div className="content">
         <div className="content-nav">
-          <div>
-            <select
-              value={selectedDivision}
-              onChange={(e) => setSelectedDivision(e.target.value)}
-            >
-              {fetchedDivisions.map((division, index) => (
-                <option key={index} value={division.name}>
-                  {division.name}
-                </option>
-              ))}
-            </select>
-
-            <select value={selectedSeason} onChange={handleSeasonChange}>
-              <option value="11710">Høst 2023</option>
-              <option value="11044">Vår 2023</option>
-              <option value="10429">Høst 2022</option>
-            </select>
+          <div className="dropdowns">
+            <Dropdown
+              options={fetchedDivisions.map((div) => ({
+                name: div.name,
+                value: div.name,
+              }))}
+              selectedValue={selectedDivision}
+              onChange={(value: any) => setSelectedDivision(value)}
+            />
+            <Dropdown
+              options={seasonOptions}
+              selectedValue={selectedSeason}
+              onChange={(value: any) => setSelectedSeason(value)}
+            />
           </div>
           <div>
             {viewPreference === "Player" && (
