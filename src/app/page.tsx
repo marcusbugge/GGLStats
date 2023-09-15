@@ -6,11 +6,13 @@ import Eks from "./Eks";
 import Footer from "./components/Footer";
 import Script from "next/script";
 import TagManager from "react-gtm-module";
+import Ekss from "./pages/Ekss";
 
 type SortPreference =
   | "Player"
   | "Champion"
   | "Standings"
+  | "MVPs"
   | "Records"
   | "Team Scouter"
   | "Ladder";
@@ -33,7 +35,6 @@ export default function Home() {
 
   return (
     <main>
-      ¨
       <div className="page-cnt">
         <Navbar
           navSort={navSort}

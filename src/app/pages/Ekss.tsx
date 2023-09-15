@@ -1,34 +1,43 @@
-import "./app.css";
+import "../app.css";
 
 import React, { useEffect, useState } from "react";
-import { fetchAllPlayerStats } from "./services/Dataservice";
-import { Gameservice } from "./services/Gameservice";
-import { Teamservice } from "./services/Teamservice";
-import Navbar from "./components/Navbar";
-import Standings from "./components/Standings";
-import Kills from "./components/Player";
-import Player from "./components/Player";
-import TeamScouter from "./components/TeamScouter";
-import LadderService from "./services/Ladderservice";
-import Champions from "./components/Champions";
-import Deaths from "./components/Deaths";
-import { Userservice } from "./services/Userservice";
-import SortButtons from "./components/SortButtons";
+import { fetchAllPlayerStats } from "../services/Dataservice";
+import { Gameservice } from "../services/Gameservice";
+import { Teamservice } from "../services/Teamservice";
+import Navbar from "../components/Navbar";
+import Standings from "../components/Standings";
+import Kills from "../components/Player";
+import Player from "../components/Player";
+import TeamScouter from "../components/TeamScouter";
+import LadderService from "../services/Ladderservice";
+import Champions from "../components/Champions";
+import Deaths from "../components/Deaths";
+import { Userservice } from "../services/Userservice";
+import SortButtons from "../components/SortButtons";
 import axios from "axios";
 import { GetServerSideProps } from "next";
-import Hiscores from "./components/Hiscores";
-import Dropdown from "./components/Dropdown";
-import Mvp from "./components/Mvp";
+import Hiscores from "../components/Hiscores";
+import Dropdown from "../components/Dropdown";
 
 type SortPreference =
   | "Player"
   | "Champion"
   | "Standings"
-  | "MVPs"
   | "Team Scouter"
   | "Ladder";
 
-function Eks({
+const divisionIds: Record<string, number> = {
+  "1.div": 11408,
+  "2.div": 11451,
+  "3.div A": 11490,
+  "3.div B": 11491,
+  "3.div C": 11492,
+  "4.div A": 11493,
+  "4.div B": 11494,
+  "4.div C": 11495,
+};
+
+function Ekss({
   setSortPreference,
   navSort,
   setNavSort,
@@ -44,13 +53,13 @@ function Eks({
   const [selectedDivision, setSelectedDivision] = useState("");
   const [selectedSeason, setSelectedSeason] = useState("11710");
   const [loading, setLoading] = useState(true);
-  const [mvpsort, setMvpsort] = useState("Round 1");
 
   const seasonOptions = [
     { name: "Høst 2023", value: "11710" },
     { name: "Vår 2023", value: "11044" },
     { name: "Høst 2022", value: "10429" },
-  ];
+    { name: "Høst 2021", value: "9535" },
+  ]; // Or fetch dynamically
 
   // Fetch divisions
   useEffect(() => {
@@ -125,18 +134,6 @@ function Eks({
 
   const sortOptionsLadder = ["Show all", "Division", "Team"];
 
-  const sortOptionsMVP = [
-    "Round 1",
-    "Round 2",
-    "Round 3",
-    "Round 4",
-    "Round 5",
-    "Round 6",
-    "Round 7",
-    "Round 8",
-    "Round 9",
-  ];
-
   let sortOptions;
   if (viewPreference === "Player") {
     sortOptions = sortOptionsPlayer;
@@ -145,8 +142,6 @@ function Eks({
   } else if (viewPreference === "Standings") {
   } else if (viewPreference === "Ladder") {
     sortOptions = sortOptionsLadder;
-  } else if (viewPreference === "MVPs") {
-    sortOptions = sortOptionsMVP;
   }
 
   const handleDivisionChange = (
@@ -214,13 +209,6 @@ function Eks({
                 onSortClick={setNavSort}
               />
             )}
-            {viewPreference === "MVPs" && (
-              <SortButtons
-                options={sortOptionsMVP}
-                selectedSort={mvpsort}
-                onSortClick={setMvpsort}
-              />
-            )}
           </div>
         </div>
 
@@ -242,18 +230,9 @@ function Eks({
               divisionID={actualDivisionID}
             />
           )}
-          {viewPreference === "Records" && (
-            <Hiscores players={playerStatsTest} />
-          )}
+          {viewPreference === "Records" && <Hiscores />}
           {viewPreference === "Ladder" && (
             <LadderService players={playerStatsTest} navSort={navSort} />
-          )}
-          {viewPreference === "MVPs" && (
-            <Mvp
-              selectedSeason={selectedSeason}
-              divisionId={actualDivisionID}
-              mvpsort={mvpsort}
-            />
           )}
           {viewPreference === "Standings" && (
             <Standings
@@ -275,7 +254,7 @@ function Eks({
   );
 }
 
-export default Eks;
+export default Ekss;
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
   console.log("getServerSideProps is running");

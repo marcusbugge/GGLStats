@@ -36,6 +36,12 @@ export default function Navbar({ setNavSort, handleSortOptionClick }: any) {
             Champions
           </h2>
           <h2
+            onClick={() => handleSortClick("MVPs")}
+            className={activeSort === "MVPs" ? "active" : ""}
+          >
+            MVPs
+          </h2>
+          <h2
             onClick={() => handleSortClick("Standings")}
             className={activeSort === "Standings" ? "active" : ""}
           >
@@ -73,26 +79,31 @@ export default function Navbar({ setNavSort, handleSortOptionClick }: any) {
             Champions
           </h2>
           <h2
-            onClick={() => handleSortClick("Standings")}
-            className={activeSort === "Standings" ? "active" : ""}
+            onClick={() => handleSortClick("Team Scouter")}
+            className={activeSort === "Team Scouter" ? "active" : ""}
           >
-            Standings
+            Team Scouter
           </h2>
           <h2
             onClick={() => handleSortClick("Records")}
             className={activeSort === "Records" ? "active" : ""}
           >
-            Records
+            Team Stats
           </h2>
 
-          <div className="nav-line"></div>
-          <br></br>
           <h2
-            onClick={() => handleSortClick("Team Scouter")}
-            className={activeSort === "Team Scouter" ? "active" : ""}
+            onClick={() => handleSortClick("MVPs")}
+            className={activeSort === "MVPs" ? "active" : ""}
           >
-            Team scouter
+            MVPs
           </h2>
+          <h2
+            onClick={() => handleSortClick("Standings")}
+            className={activeSort === "Standings" ? "active" : ""}
+          >
+            Standings
+          </h2>
+
           <h2
             onClick={() => handleSortClick("Ladder")}
             className={activeSort === "Ladder" ? "active ladder" : "ladder"}

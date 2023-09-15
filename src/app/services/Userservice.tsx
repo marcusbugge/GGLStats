@@ -9,33 +9,17 @@ export class Userservice {
     division: number;
     season: string;
   }) {
+    console.log("GAMER_API_TOKEN:", process.env.NEXT_PUBLIC_GAMER_API_TOKEN);
+
     try {
       const axiosConfig = {
         headers: {
-          Authorization: `Bearer 22|jDom6Dw36tOiG0BMrUWTH2HBbu5SoAVZOv3M9rmD`,
+          Authorization: `Bearer ${process.env.NEXT_PUBLIC_GAMER_API_TOKEN}`,
           Accept: "application/json",
         },
       };
 
-      const [
-        competition,
-        divisions,
-        tables,
-        stats,
-        players,
-        championStats,
-        championStatsPlayer,
-      ] = await Promise.all([
-        axios.get(
-          `https://corsproxy.io/?https://www.gamer.no/api/paradise/v2/competition/${season}`,
-          {
-            headers: axiosConfig.headers,
-          }
-        ),
-        axios.get(
-          `https://corsproxy.io/?https://www.gamer.no/api/paradise/v2/competition/${season}/divisions`,
-          { headers: axiosConfig.headers }
-        ),
+      const [tables, stats, players] = await Promise.all([
         axios.get(
           `https://corsproxy.io/?https://www.gamer.no/api/paradise/v2/division/${division}/tables`,
           { headers: axiosConfig.headers }
@@ -50,15 +34,9 @@ export class Userservice {
           `https://corsproxy.io/?https://www.gamer.no/api/paradise/v2/division/${division}/players`,
           { headers: axiosConfig.headers }
         ),
-        axios.get(
-          `https://corsproxy.io/?https://www.gamer.no/api/paradise/v2/division/${division}/stats/lol/champions`,
-          { headers: axiosConfig.headers }
-        ),
-        axios.get(
-          `https://corsproxy.io/?https://www.gamer.no/api/paradise/v2/user/2474/stats/lol/champions?division_id=${division}`,
-          { headers: axiosConfig.headers }
-        ),
       ]);
+
+      console.log("token", process.env.NEXT_PUBLIC_GAMER_API_TOKEN);
 
       const playerData: any = players.data.data.map((player: any): any => {
         // Find the corresponding teamInfo and stats for the player

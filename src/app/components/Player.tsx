@@ -17,6 +17,18 @@ export default function Player({ loading, navSort, playerTest, season }: any) {
     Gold: "goldEarnedPerMinute", // Update with the correct column
   };
 
+  const categoryMultipliers: any = {
+    Kills: 1,
+    Deaths: 0.8,
+    KDA: 1.5,
+    Assists: 1,
+    Vision: 1.5,
+    KP: 1.5,
+    Farm: 0.8,
+    Damage: 1,
+    Gold: 1,
+  };
+
   const [headerSort, setHeaderSort] = useState({
     column: defaultSortColumns[navSort],
     order: "asc",
@@ -46,11 +58,13 @@ export default function Player({ loading, navSort, playerTest, season }: any) {
   };
 
   const calculateAvgPlacement = (player: any, allSortCategories: any) => {
-    let totalPlacement = 0;
-    let categoryCount = 0;
+    let weightedTotalPlacement = 0;
+    let totalWeight = 0;
 
     for (const category in allSortCategories) {
+      const weight = categoryMultipliers[category] || 1; // If a multiplier doesn't exist, use 1 as the default
       const isLessBetter = category === "Deaths"; // specify other categories if needed
+
       const sortedList = [...playerTest].sort((a, b) => {
         const aVal = a.stats
           ? parseFloat(a.stats[allSortCategories[category]] || 0)
@@ -60,12 +74,13 @@ export default function Player({ loading, navSort, playerTest, season }: any) {
           : 0;
         return isLessBetter ? aVal - bVal : bVal - aVal;
       });
+
       const placement = sortedList.findIndex((p) => p === player);
-      totalPlacement += placement + 1; // +1 because index is 0-based
-      categoryCount++;
+      weightedTotalPlacement += (placement + 1) * weight; // Multiply by weight
+      totalWeight += weight;
     }
 
-    return categoryCount > 0 ? totalPlacement / categoryCount : 0;
+    return totalWeight > 0 ? weightedTotalPlacement / totalWeight : 0;
   };
 
   // Function to calculate average placement for a team

@@ -469,7 +469,7 @@
 }
 
 .win {
-  border: solid 2px rgb(138, 0, 0);
+  border: solid 1px rgb(138, 0, 0);
 }
 
 .loss {
@@ -477,7 +477,7 @@
 }
 
 .selected-win {
-  border: solid 2px #006300;
+  border: solid 1px #006300;
 }
 
 .custom-dropdown {
@@ -521,6 +521,9 @@
   border: 1px solid var(--purple);
 }
 
+.match-det {
+}
+
 /* Other styles as per your design */
 
 .dropdowns {
@@ -555,4 +558,214 @@
   display: block;
   opacity: 1;
   display: flex;
+}
+
+/** gamedetails **/
+
+.game {
+  background-color: var(--background-dark);
+  border: 1px solid var(--stroke);
+  border-radius: 20px;
+  display: flex;
+
+  margin: 20px 0px;
+  padding: 20px;
+}
+
+.player-game {
+  display: flex;
+  align-items: center;
+
+  background-color: var(--background);
+  margin: 5px;
+
+  border-radius: 10px;
+}
+
+.testtesttest {
+  display: flex;
+  width: 40%;
+  align-items: center;
+  margin-left: 10px;
+}
+
+.testtesttest img {
+  margin-right: 10px;
+}
+
+.width100 {
+  width: 100%;
+}
+
+.item-hold {
+  display: flex;
+  align-items: flex-end;
+  justify-content: flex-end;
+}
+
+.player-game {
+}
+
+.player-game img {
+  max-width: 50px;
+  max-height: 50px;
+}
+.player-game div {
+}
+.game-data-profile {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.name-stat {
+  display: flex;
+  flex-direction: column;
+
+  justify-content: center;
+}
+
+.game-data-profile p {
+  font-size: 12px;
+  padding: 0px;
+}
+
+.game-data-profile h4 {
+  font-size: 16px;
+}
+
+.flex {
+  font-size: 13px;
+  padding-left: 15px;
+  display: flex;
+  justify-content: space-between;
+}
+
+.flex div {
+  height: 20px;
+}
+
+.teamstats {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  margin-top: 50px;
+}
+
+.bgteam {
+  background-color: var(--background-dark);
+  padding: 40px;
+  border-radius: 20px;
+  margin: 20px;
+  width: 35%;
+}
+
+.item-container {
+  padding: 10px;
+  margin-left: 30px;
+  display: flex;
+}
+
+.item img {
+  max-width: 25px !important;
+  max-height: 25px !important;
+  margin: 0px !important;
+}
+
+/* Add these styles to your existing CSS file */
+.item-container {
+  display: flex;
+  justify-content: flex-start;
+}
+
+.empty-item {
+  background: gray; /* or any other placeholder styling */
+}
+
+.item,
+.last-item {
+}
+
+.last-item {
+  order: 0; /* This will place it as the 4th item in the first row */
+}
+
+.upcoming-game:hover {
+  cursor: pointer;
+  border: 1px solid var(--purple);
+}
+
+.match-det {
+  background-color: var(--background-dark);
+  border-radius: 20px;
+
+  margin: 20px;
+}
+
+.gamecount {
+  margin-left: 50px;
+  margin-top: 50px;
+}
+
+/** podium **/
+
+.mvp-page {
+  padding: 30px 0px 100px 0px;
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  position: relative;
+}
+.mvpbg {
+  width: 100%;
+  position: absolute;
+  background-color: #006300;
+  height: 50%;
+  z-index: -1;
+}
+.podium {
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  margin-top: 60px;
+}
+
+.placement {
+  width: 150px;
+  background-color: var(--background-dark);
+  margin: 0px 20px;
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
+  align-items: center;
+}
+
+.placement-1 {
+  height: 100px;
+  border-top: 5px solid goldenrod;
+}
+
+.placement-2 {
+  height: 75px;
+  border-top: 5px solid silver;
+}
+
+.placement-3 {
+  height: 50px;
+  border-top: 5px solid rgb(126, 43, 5);
+}
+
+.podiumname {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.understanding {
+  margin-top: 100px;
+}
+
+.kyserdog {
+  color: var(--background-dark);
 }

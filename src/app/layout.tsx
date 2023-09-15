@@ -17,6 +17,7 @@ export default function RootLayout({
     | "Player"
     | "Champion"
     | "Standings"
+    | "MVPs"
     | "Team Scouter"
     | "Ladder";
 

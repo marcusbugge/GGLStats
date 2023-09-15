@@ -3,6 +3,7 @@ import "./components.css";
 import { Teamservice } from "../services/Teamservice";
 import { Bar } from "react-chartjs-2";
 import axios from "axios";
+import GameDetails from "./GameDetails";
 
 const fetchData = async (url: any, headers = {}) => {
   try {
@@ -23,6 +24,7 @@ export default function TeamScouter({
   const [divisionData, setDivisionData] = useState<any>(null);
   const [selectedTeam, setSelectedTeam] = useState<any>(null);
   const [teams, setTeams] = useState<any[]>([]);
+  const [teamClicked, setTeamClicked] = useState<any>(false);
   const [playerChampionData, setPlayerChampionData] = useState<any>({});
   const [selectedPlayer, setSelectedPlayer] = useState<any>(null);
   const [clickedPlayerId, setClickedPlayerId] = useState<number | null>(null);
@@ -33,6 +35,15 @@ export default function TeamScouter({
   >({});
 
   const [selectedPlayerGames, setSelectedPlayerGames] = useState<any>([]);
+
+  const [clickedMatchID, setClickedMatchID] = useState(null);
+
+  const handleMatchClick = (matchID: any) => {
+    // Toggle the clicked state: If it's already clicked, hide it. Otherwise, show it.
+    setClickedMatchID((prevMatchID) =>
+      prevMatchID === matchID ? null : matchID
+    );
+  };
 
   const commonHeaders = {
     Authorization: "Bearer 22|jDom6Dw36tOiG0BMrUWTH2HBbu5SoAVZOv3M9rmD",
@@ -145,6 +156,8 @@ export default function TeamScouter({
 
       const response = await axios.get(url, axiosConfig);
       setFinishedMatches(response.data.data);
+
+      console.log("finished", finishedMatches);
     } catch (error) {
       console.error("Failed to fetch finished matches:", error);
     }
@@ -387,26 +400,38 @@ export default function TeamScouter({
                 : "loss";
 
               return (
-                <div className={`upcoming-game ${className}`} key={index}>
-                  <h3 className="white opponent">
-                    <img
-                      src={match.home_signup.team.logo.url}
-                      alt="team logo"
-                    />
-                    {match.home_signup.name} - {match.away_signup.name}
-                    <img
-                      src={match.away_signup.team.logo.url}
-                      alt="team logo"
-                    />
-                  </h3>
-                  <div className="matchdata">
-                    <h3 className="white">
-                      {match.home_score} - {match.away_score}
+                <div className="match-det" key={index}>
+                  <div
+                    className={`upcoming-game ${className}`}
+                    onClick={() => handleMatchClick(match.id)}
+                  >
+                    <h3 className="white opponent">
+                      <img
+                        src={match.home_signup.team.logo.url}
+                        alt="team logo"
+                      />
+                      {match.home_signup.name} - {match.away_signup.name}
+                      <img
+                        src={match.away_signup.team.logo.url}
+                        alt="team logo"
+                      />
                     </h3>
-                    <a href={match.url}>
-                      <button>Details</button>
-                    </a>
+                    <div className="matchdata">
+                      <h3 className="white">
+                        {match.home_score} - {match.away_score}
+                      </h3>
+                      <a href={match.url}>
+                        <button>Details</button>
+                      </a>
+                    </div>
                   </div>
+
+                  {clickedMatchID === match.id ? ( // Check if this match's ID is the clicked one
+                    <GameDetails
+                      matchID={match.id}
+                      isWinningTeam={isWinningTeam}
+                    />
+                  ) : null}
                 </div>
               );
             })}
