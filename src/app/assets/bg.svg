@@ -1,0 +1,24 @@
+     <svg
+          viewBox="0 0 1318 752"
+          className="w-[82.375rem] flex-none"
+          aria-hidden="true"
+        >
+          <path
+            fill="url(#ee394704-5802-4a27-9451-3d29bf7415a3)"
+            fill-opacity=".5"
+            d="m279.655 479.549-211.511-96.46L.638 751.469l279.017-271.92 380.928 173.723c-77.415-137.198-159.845-384.186 129.758-274.555C1152.34 515.756 1226.88 775.51 1299.76 547.101c58.31-182.726-41.07-382.222-98.04-459.13L964.951 386.243 771.295.416 279.655 479.55Z"
+          ></path>
+          <defs>
+            <linearGradient
+              id="ee394704-5802-4a27-9451-3d29bf7415a3"
+              x1="1452.56"
+              x2="-101.59"
+              y1="515.446"
+              y2="760.592"
+              gradientUnits="userSpaceOnUse"
+            >
+              <stop stop-color="#ff6d43"></stop>
+              <stop offset="1" stop-color="#3f4245"></stop>
+            </linearGradient>
+          </defs>
+        </svg>

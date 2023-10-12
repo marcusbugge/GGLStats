@@ -1,5 +1,5 @@
 import axios from "axios";
-import { getData } from "../api/getTest";
+
 import { GetServerSideProps } from "next";
 export class Userservice {
   static async getPlayersStats({
@@ -9,34 +9,18 @@ export class Userservice {
     division: number;
     season: string;
   }) {
-    console.log("GAMER_API_TOKEN:", process.env.NEXT_PUBLIC_GAMER_API_TOKEN);
-
     try {
-      const axiosConfig = {
-        headers: {
-          Authorization: `Bearer ${process.env.NEXT_PUBLIC_GAMER_API_TOKEN}`,
-          Accept: "application/json",
-        },
-      };
-
       const [tables, stats, players] = await Promise.all([
         axios.get(
-          `https://corsproxy.io/?https://www.gamer.no/api/paradise/v2/division/${division}/tables`,
-          { headers: axiosConfig.headers }
+          `/api/gamer-proxy?https://www.gamer.no/api/paradise/v2/division/${division}/tables`
         ),
         axios.get(
-          `https://corsproxy.io/?https://www.gamer.no/api/paradise/v2/division/${division}/stats`,
-          {
-            headers: axiosConfig.headers,
-          }
+          `/api/gamer-proxy?https://www.gamer.no/api/paradise/v2/division/${division}/stats`
         ),
         axios.get(
-          `https://corsproxy.io/?https://www.gamer.no/api/paradise/v2/division/${division}/players`,
-          { headers: axiosConfig.headers }
+          `/api/gamer-proxy?https://www.gamer.no/api/paradise/v2/division/${division}/players`
         ),
       ]);
-
-      console.log("token", process.env.NEXT_PUBLIC_GAMER_API_TOKEN);
 
       const playerData: any = players.data.data.map((player: any): any => {
         // Find the corresponding teamInfo and stats for the player

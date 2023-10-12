@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import "./components.css";
-import { Teamservice } from "../services/Teamservice";
+
 import { Bar } from "react-chartjs-2";
 import axios from "axios";
 import GameDetails from "./GameDetails";
@@ -45,22 +45,11 @@ export default function TeamScouter({
     );
   };
 
-  const commonHeaders = {
-    Authorization: "Bearer 22|jDom6Dw36tOiG0BMrUWTH2HBbu5SoAVZOv3M9rmD",
-    Accept: "application/json",
-  };
-
-  console.log("Tamscout players", playerStats);
-  console.log("divid", divisionId);
-
-  console.log("fetched divisionshhsd", fetchedDivisions);
-
   useEffect(() => {
     const actualId = fetchedDivisions[divisionId];
     if (actualId) {
       fetchData(
-        `https://corsproxy.io/?https://www.gamer.no/api/paradise/competition/${selectedSeason}/tables`,
-        commonHeaders
+        `/api/gamer-proxy?https://www.gamer.no/api/paradise/competition/${selectedSeason}/tables`
       )
         .then((data) => {
           const division = data.find((div: any) => div.id === actualId);
@@ -79,8 +68,7 @@ export default function TeamScouter({
 
         for (const player of teams) {
           const data = await fetchData(
-            `https://corsproxy.io/?https://www.gamer.no/api/paradise/v2/user/${player.user.id}/stats/lol/champions?division_id=${fetchedDivisions[divisionId]}`,
-            commonHeaders
+            `/api/gamer-proxy?https://www.gamer.no/api/paradise/v2/user/${player.user.id}/stats/lol/champions?division_id=${fetchedDivisions[divisionId]}`
           );
           newPlayerChampionData[player.user.id] = data.data;
         }
@@ -95,16 +83,8 @@ export default function TeamScouter({
   useEffect(() => {
     const fetchDivisions = async () => {
       try {
-        const axiosConfig = {
-          headers: {
-            Authorization: "Bearer 22|jDom6Dw36tOiG0BMrUWTH2HBbu5SoAVZOv3M9rmD",
-            Accept: "application/json",
-          },
-        };
-
         const response = await axios.get(
-          `https://corsproxy.io/?https://www.gamer.no/api/paradise/v2/competition/${selectedSeason}/divisions`,
-          { headers: axiosConfig.headers }
+          `/api/gamer-proxy?https://www.gamer.no/api/paradise/v2/competition/${selectedSeason}/divisions`
         );
 
         // Assuming the response.data contains an array of divisions with 'name' and 'id' properties
@@ -123,8 +103,6 @@ export default function TeamScouter({
   }, [selectedSeason]);
 
   useEffect(() => {
-    console.log("team", selectedTeam);
-
     if (selectedTeam) {
       fetchUpcomingMatches(selectedTeam.team_id);
       fetchFinishedMatches(selectedTeam.team_id);
@@ -133,12 +111,9 @@ export default function TeamScouter({
 
   const fetchUpcomingMatches = async (teamID: number) => {
     try {
-      const url = `https://corsproxy.io/?https://www.gamer.no/api/paradise/team/${teamID}/matchups?page=1`;
-      const axiosConfig = {
-        headers: commonHeaders,
-      };
+      const url = `/api/gamer-proxy?https://www.gamer.no/api/paradise/team/${teamID}/matchups?page=1`;
 
-      const response = await axios.get(url, axiosConfig);
+      const response = await axios.get(url);
       setUpcomingMatches(response.data.data);
     } catch (error) {
       console.error("Failed to fetch upcoming matches:", error);
@@ -146,18 +121,11 @@ export default function TeamScouter({
   };
 
   const fetchFinishedMatches = async (teamID: number) => {
-    console.log("dividisisi", divisionId);
-
     try {
-      const url = `https://corsproxy.io/?https://www.gamer.no/api/paradise/v2/matchup?team_id=${teamID}&filter=finished&division_id=${fetchedDivisions[divisionId]}`;
-      const axiosConfig = {
-        headers: commonHeaders,
-      };
+      const url = `/api/gamer-proxy?https://www.gamer.no/api/paradise/v2/matchup?team_id=${teamID}&filter=finished&division_id=${fetchedDivisions[divisionId]}`;
 
-      const response = await axios.get(url, axiosConfig);
+      const response = await axios.get(url);
       setFinishedMatches(response.data.data);
-
-      console.log("finished", finishedMatches);
     } catch (error) {
       console.error("Failed to fetch finished matches:", error);
     }
@@ -286,8 +254,6 @@ export default function TeamScouter({
 
     const mostPlayedChamp = mostPlayed();
 
-    console.log("played", played);
-
     // Sort champions by pick count and winrate
     const sortedByPickCount = Object.values(played).sort(
       (a: any, b: any) => b.count - a.count
@@ -299,8 +265,6 @@ export default function TeamScouter({
         (b.winCount / b.count) * 100 - (a.winCount / a.count) * 100
     );
     const top5HighestWinRate = sortedByWinRate.slice(0, 5);
-
-    console.log(top5MostPicked);
 
     const playerNames = teams
       .map((player) => player.stats.summonerName)
@@ -374,7 +338,7 @@ export default function TeamScouter({
         <div className="team-games">
           {" "}
           <div>
-            <h2>Finished Matches</h2>
+            <h2 className="up">Finished Matches</h2>
             {finishedMatches.map((match, index) => {
               const homeTeamId = match.home_signup.team.id;
               const awayTeamId = match.away_signup.team.id;
@@ -438,7 +402,7 @@ export default function TeamScouter({
           </div>
         </div>
         <div>
-          <h2>Upcoming Matches</h2>
+          <h2 className="up">Upcoming Matches</h2>
           {upcomingMatches.map((match, index) => (
             <div className="upcoming-game" key={index}>
               <h3 className="white opponent">

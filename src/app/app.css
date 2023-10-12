@@ -1,5 +1,4 @@
 body {
-  background-color: var(--background-dark);
   display: flex;
 }
 
@@ -20,6 +19,7 @@ html {
   margin: 0;
   padding: 0;
   display: flex;
+  background-image: url("./assets/bg.svg");
 }
 
 .test {
@@ -58,6 +58,7 @@ html {
 
 .tables {
   background-color: var(--background);
+
   border: 1px solid var(--stroke);
   border-radius: 20px;
   padding: 2vh 4vw;

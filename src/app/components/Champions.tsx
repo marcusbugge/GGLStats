@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { Gameservice } from "../services/Gameservice";
+
 import { Championservice } from "../services/Championservice";
 
 export default function Champions({

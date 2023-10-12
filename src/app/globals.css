@@ -18,3 +18,18 @@ td {
   color: white !important;
   font-weight: 800;
 }
+
+body,
+html {
+}
+
+.allpages {
+  display: flex;
+}
+
+.flex-none {
+  position: fixed;
+  z-index: -2;
+  transform: rotate();
+  filter: blur(50px);
+}

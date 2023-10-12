@@ -92,6 +92,19 @@ const Hiscores: React.FC<HiscoresProps> = ({ players }) => {
 
   teamStats.sort((a, b) => parseFloat(b.kda) - parseFloat(a.kda));
 
+  const sortedByKDA = [...teamStats].sort(
+    (a, b) => parseFloat(b.kda) - parseFloat(a.kda)
+  );
+  const sortedByFirstBloodKills = [...teamStats].sort(
+    (a, b) => b.firstBloodKills - a.firstBloodKills
+  );
+  const sortedByFirstTowerKills = [...teamStats].sort(
+    (a, b) => b.firstTowerKills - a.firstTowerKills
+  );
+  const sortedByFarmPerMinute = [...teamStats].sort(
+    (a, b) => parseFloat(b.farmPerMinute) - parseFloat(a.farmPerMinute)
+  );
+
   return (
     <div className="white teamstats">
       <div className="bgteam">
@@ -105,7 +118,7 @@ const Hiscores: React.FC<HiscoresProps> = ({ players }) => {
             </tr>
           </thead>
           <tbody>
-            {teamStats.map((team, index) => (
+            {sortedByKDA.map((team, index) => (
               <tr key={index}>
                 <td>{team.teamName}</td>
                 <td>{team.kda}</td>
@@ -125,31 +138,10 @@ const Hiscores: React.FC<HiscoresProps> = ({ players }) => {
             </tr>
           </thead>
           <tbody>
-            {teamStats.map((team, index) => (
+            {sortedByFirstBloodKills.map((team, index) => (
               <tr key={index}>
                 <td>{team.teamName}</td>
                 <td>{team.firstBloodKills}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-
-      <div className="bgteam">
-        {" "}
-        <h3>Most Pentakills </h3>
-        <table>
-          <thead>
-            <tr>
-              <th>Team</th>
-              <th>Pentakills</th>
-            </tr>
-          </thead>
-          <tbody>
-            {teamStats.map((team, index) => (
-              <tr key={index}>
-                <td>{team.teamName}</td>
-                <td>{team.pentaKills}</td>
               </tr>
             ))}
           </tbody>
@@ -167,7 +159,7 @@ const Hiscores: React.FC<HiscoresProps> = ({ players }) => {
             </tr>
           </thead>
           <tbody>
-            {teamStats.map((team, index) => (
+            {sortedByFirstTowerKills.map((team, index) => (
               <tr key={index}>
                 <td>{team.teamName}</td>
 
@@ -190,7 +182,7 @@ const Hiscores: React.FC<HiscoresProps> = ({ players }) => {
             </tr>
           </thead>
           <tbody>
-            {teamStats.map((team, index) => (
+            {sortedByFarmPerMinute.map((team, index) => (
               <tr key={index}>
                 <td>{team.teamName}</td>
 

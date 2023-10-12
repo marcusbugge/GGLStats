@@ -16,7 +16,7 @@ interface LadderServiceProps {
 
 const LadderService = ({ players, navSort }: LadderServiceProps) => {
   const [allPlayerInfo, setAllPlayerInfo] = useState<Player[]>([]);
-  const [isLoading, setIsLoading] = useState(true); // Add this line
+  const [isLoading, setIsLoading] = useState(false); // Add this line
   const sleep = (ms: any) => new Promise((resolve) => setTimeout(resolve, ms));
 
   let sortedPlayers = [...players]; // Create a copy of players
@@ -61,14 +61,9 @@ const LadderService = ({ players, navSort }: LadderServiceProps) => {
   };
 
   const fetchDivisionStats = async (divisionIds: string[]) => {
-    const headers = {
-      Authorization: "Bearer 22|jDom6Dw36tOiG0BMrUWTH2HBbu5SoAVZOv3M9rmD",
-      "Content-Type": "application/json",
-    };
     const promises = divisionIds.map((id) =>
       fetch(
-        `https://corsproxy.io/?https://www.gamer.no/api/paradise/v2/division/${id}/stats`,
-        { headers }
+        `/api/gamer-proxy?https://www.gamer.no/api/paradise/v2/division/${id}/stats`
       ).then((response) => response.json())
     );
 
@@ -78,7 +73,7 @@ const LadderService = ({ players, navSort }: LadderServiceProps) => {
   const fetchRank = async (
     summonerNames: string[]
   ): Promise<Map<string, { rank: string; LP: string }>> => {
-    const url = `https://corsproxy.io/?https://api.lolstats.fourzero.one/v2/summonerrank?region=euw1&&summoner=${summonerNames.join(
+    const url = `/api/gamer-proxy?https://api.lolstats.fourzero.one/v2/summonerrank?region=euw1&&summoner=${summonerNames.join(
       ","
     )}`;
     const response = await fetch(url);
@@ -114,14 +109,8 @@ const LadderService = ({ players, navSort }: LadderServiceProps) => {
       try {
         setIsLoading(true);
 
-        const headers = {
-          Authorization: "Bearer 22|jDom6Dw36tOiG0BMrUWTH2HBbu5SoAVZOv3M9rmD",
-          "Content-Type": "application/json",
-        };
-
         const divisionsResponse = await fetch(
-          "https://corsproxy.io/?https://www.gamer.no/api/paradise/v2/competition/11710/divisions",
-          { headers }
+          "/api/gamer-proxy?https://www.gamer.no/api/paradise/v2/competition/11710/divisions"
         );
 
         const allDivisions = await divisionsResponse.json();
@@ -165,7 +154,7 @@ const LadderService = ({ players, navSort }: LadderServiceProps) => {
         }
 
         for (const chunk of chunks) {
-          await sleep(500); // waits for 500 ms
+          await sleep(670); // waits for 500 ms
           const summonerNames = chunk.map((player) => player.summonerName);
           const rankPromise = fetchRank(summonerNames).then((rankMap: any) => {
             for (const player of chunk) {

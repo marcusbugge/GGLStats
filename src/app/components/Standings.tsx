@@ -8,13 +8,10 @@ export default function Standings({
 }: any) {
   const [divisionData, setDivisionData] = useState<Division2 | null>(null);
 
-  console.log("hello");
-  console.log("playersttas", playerStats);
-
   useEffect(() => {
     if (typeof divisionId !== "undefined") {
       fetch(
-        `https://corsproxy.io/?https://www.gamer.no/api/paradise/competition/${selectedSeason}/tables`
+        `/api/gamer-proxy?https://www.gamer.no/api/paradise/competition/${selectedSeason}/tables`
       )
         .then((response) => response.json())
         .then((data) => {
@@ -30,8 +27,6 @@ export default function Standings({
       console.error(`Unknown divisionId: ${divisionId}`);
     }
   }, [divisionId]);
-
-  console.log(divisionData);
 
   // Organize the player stats by team ID.
   const teamStats: { [key: number]: any } = {};

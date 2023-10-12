@@ -4,22 +4,12 @@ const GameDetails = ({ matchID, isWinningTeam }: any) => {
   const [playerStats, setPlayerStats] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  console.log("winningteam", isWinningTeam);
-
-  const axiosConfig = {
-    headers: {
-      Authorization: "Bearer 22|jDom6Dw36tOiG0BMrUWTH2HBbu5SoAVZOv3M9rmD",
-      Accept: "application/json",
-    },
-  };
-
   useEffect(() => {
     const savedPosition = window.scrollY;
 
     setIsLoading(true); // Set loading to true before API call
     fetch(
-      `https://corsproxy.io/?https://www.gamer.no/api/paradise/v2/matchup/${matchID}/stats`,
-      { headers: axiosConfig.headers }
+      `/api/gamer-proxy?https://www.gamer.no/api/paradise/v2/matchup/${matchID}/stats`
     )
       .then((response) => response.json())
       .then((data) => {
@@ -73,8 +63,6 @@ const GameDetails = ({ matchID, isWinningTeam }: any) => {
       </div>
     );
   };
-
-  console.log("groupbygameitmt", groupByGameTime);
 
   if (isLoading) {
     return (

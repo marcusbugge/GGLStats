@@ -13,11 +13,6 @@ export default function Mvp({ selectedSeason, divisionId, mvpsort }: any) {
   const [isLoadingTeamTableData, setIsLoadingTeamTableData] =
     useState<boolean>(false);
 
-  const headers = {
-    Authorization: "Bearer 22|jDom6Dw36tOiG0BMrUWTH2HBbu5SoAVZOv3M9rmD",
-    "Content-Type": "application/json",
-  };
-
   const defaultSortColumns: any = {
     Kills: "killsPerMap",
     Deaths: "deathsPerMap", // Update with the correct column
@@ -44,8 +39,6 @@ export default function Mvp({ selectedSeason, divisionId, mvpsort }: any) {
     // Add more placements as needed
   };
 
-  console.log("teamtabledata", teamTableData);
-
   const getMultiplier = (teamId: string) => {
     if (!teamTableData) return 1;
 
@@ -67,8 +60,6 @@ export default function Mvp({ selectedSeason, divisionId, mvpsort }: any) {
     let categoriesCount = 0;
 
     // Assuming player has an opponentTeamId attribute
-
-    console.log("playeroppononet", player);
 
     const multiplier: any = getMultiplier(player.opponentTeamId);
 
@@ -102,20 +93,15 @@ export default function Mvp({ selectedSeason, divisionId, mvpsort }: any) {
   };
 
   useEffect(() => {
-    console.log("roundnumber", mvpsort);
-
     const roundNumber = mvpsort.replace(/\D+/g, "");
 
     setIsLoadingRoundData(true);
 
     axios
       .get(
-        `https://corsproxy.io/?https://www.gamer.no/api/paradise/v2/division/${divisionId}/matchups?round_number=${roundNumber}&include_maps=1`,
-        { headers }
+        `/api/gamer-proxy?https://www.gamer.no/api/paradise/v2/division/${divisionId}/matchups?round_number=${roundNumber}&include_maps=1`
       )
       .then((response) => {
-        console.log("roundata", roundData);
-
         setRoundData(response.data);
       })
       .finally(() => {
@@ -131,8 +117,7 @@ export default function Mvp({ selectedSeason, divisionId, mvpsort }: any) {
       Promise.all(
         matchIds.map((id: any) =>
           axios.get(
-            `https://corsproxy.io/?https://www.gamer.no/api/paradise/v2/matchup/${id}/stats`,
-            { headers }
+            `/api/gamer-proxy?https://www.gamer.no/api/paradise/v2/matchup/${id}/stats`
           )
         )
       )
@@ -170,7 +155,7 @@ export default function Mvp({ selectedSeason, divisionId, mvpsort }: any) {
     if (typeof divisionId !== "undefined") {
       setIsLoadingTeamTableData(true);
       fetch(
-        `https://corsproxy.io/?https://www.gamer.no/api/paradise/competition/${selectedSeason}/tables`
+        `/api/gamer-proxy?https://www.gamer.no/api/paradise/competition/${selectedSeason}/tables`
       )
         .then((response) => response.json())
         .then((data) => {
@@ -217,7 +202,6 @@ export default function Mvp({ selectedSeason, divisionId, mvpsort }: any) {
     }
   }, [playerData]);
 
-  console.log("playerdta", playerData);
   const isEverythingLoaded =
     !isLoadingRoundData && !isLoadingPlayerData && !isLoadingTeamTableData;
 

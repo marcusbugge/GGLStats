@@ -6,14 +6,6 @@ export class Championservice {
   }: {
     divisionID: string | number;
   }) {
-    // Config for axios
-    const axiosConfig = {
-      headers: {
-        Authorization: "Bearer 22|jDom6Dw36tOiG0BMrUWTH2HBbu5SoAVZOv3M9rmD",
-        Accept: "application/json",
-      },
-    };
-
     try {
       if (divisionID === undefined) {
         console.warn("divisionID is undefined");
@@ -22,8 +14,7 @@ export class Championservice {
 
       // Fetching the data
       const response = await axios.get(
-        `https://corsproxy.io/?https://www.gamer.no/api/paradise/v2/division/${divisionID}/stats/lol/champions`,
-        axiosConfig
+        `/api/gamer-proxy?https://www.gamer.no/api/paradise/v2/division/${divisionID}/stats/lol/champions`
       );
 
       // Make sure to verify if response and response.data exist

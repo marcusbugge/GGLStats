@@ -1,9 +1,9 @@
+"use client";
+
 import "./app.css";
 
 import React, { useEffect, useState } from "react";
-import { fetchAllPlayerStats } from "./services/Dataservice";
-import { Gameservice } from "./services/Gameservice";
-import { Teamservice } from "./services/Teamservice";
+
 import Navbar from "./components/Navbar";
 import Standings from "./components/Standings";
 import Kills from "./components/Player";
@@ -11,7 +11,7 @@ import Player from "./components/Player";
 import TeamScouter from "./components/TeamScouter";
 import LadderService from "./services/Ladderservice";
 import Champions from "./components/Champions";
-import Deaths from "./components/Deaths";
+
 import { Userservice } from "./services/Userservice";
 import SortButtons from "./components/SortButtons";
 import axios from "axios";
@@ -19,32 +19,32 @@ import { GetServerSideProps } from "next";
 import Hiscores from "./components/Hiscores";
 import Dropdown from "./components/Dropdown";
 import Mvp from "./components/Mvp";
+import { loadDefaultErrorComponents } from "next/dist/server/load-components";
 
-type SortPreference =
-  | "Player"
-  | "Champion"
-  | "Standings"
-  | "MVPs"
-  | "Team Scouter"
-  | "Ladder";
+const fetchPlayers = async (divisionId: any, selectedSeason: any) => {
+  const data = await Userservice.getPlayersStats({
+    division: divisionId,
+    season: selectedSeason,
+  });
+};
 
-function Eks({
-  setSortPreference,
-  navSort,
-  setNavSort,
-  viewPreference,
-  initialPlayerStats,
-}: any) {
-  const [playerStats, setPlayerStats] = useState(initialPlayerStats);
-
-  console.log("playerstatss sertver", playerStats);
-
+export default function Eks({ navSort, setNavSort, viewPreference }: any) {
   const [playerStatsTest, setPlayerStatsTest] = useState([]);
   const [fetchedDivisions, setFetchedDivisions] = useState<any[]>([]);
   const [selectedDivision, setSelectedDivision] = useState("");
   const [selectedSeason, setSelectedSeason] = useState("11710");
   const [loading, setLoading] = useState(true);
   const [mvpsort, setMvpsort] = useState("Round 1");
+
+  // Find the division object from fetchedDivisions based on selectedDivision
+  const selectedDivisionObject = fetchedDivisions.find(
+    (division) => division.name === selectedDivision
+  );
+
+  // Extract the division ID from the selected division object
+  const actualDivisionID = selectedDivisionObject
+    ? selectedDivisionObject.id
+    : null;
 
   const seasonOptions = [
     { name: "Høst 2023", value: "11710" },
@@ -57,14 +57,7 @@ function Eks({
     const fetchDivisions = async () => {
       try {
         const response = await axios.get(
-          `https://corsproxy.io/?https://www.gamer.no/api/paradise/v2/competition/${selectedSeason}/divisions`,
-          {
-            headers: {
-              Authorization:
-                "Bearer 22|jDom6Dw36tOiG0BMrUWTH2HBbu5SoAVZOv3M9rmD",
-              Accept: "application/json",
-            },
-          }
+          `/api/gamer-proxy?https://www.gamer.no/api/paradise/v2/competition/${selectedSeason}/divisions`
         );
         setFetchedDivisions(response.data);
         // Try to set to "1. divisjon" by default, otherwise set to the first division in the list
@@ -119,6 +112,7 @@ function Eks({
     "Farm",
     "Damage",
     "Gold",
+    "Towers",
   ];
 
   const sortOptionsChampion = ["Games", "Winrate", "KDA", "Farm", "KP", "Gold"];
@@ -158,16 +152,6 @@ function Eks({
   const handleSeasonChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
     setSelectedSeason(event.target.value);
   };
-
-  // Find the division object from fetchedDivisions based on selectedDivision
-  const selectedDivisionObject = fetchedDivisions.find(
-    (division) => division.name === selectedDivision
-  );
-
-  // Extract the division ID from the selected division object
-  const actualDivisionID = selectedDivisionObject
-    ? selectedDivisionObject.id
-    : null;
 
   return (
     <div className="app">
@@ -230,13 +214,13 @@ function Eks({
               loading={loading}
               navSort={navSort}
               playerTest={playerStatsTest}
-              division={selectedDivision}
+              div={actualDivisionID}
               season={selectedSeason}
             />
           )}
           {viewPreference === "Champion" && (
             <Champions
-              playerDataList={playerStats}
+              playerDataList={playerStatsTest}
               loading={loading}
               navSort={navSort}
               divisionID={actualDivisionID}
@@ -274,31 +258,3 @@ function Eks({
     </div>
   );
 }
-
-export default Eks;
-
-export const getServerSideProps: GetServerSideProps = async (context) => {
-  console.log("getServerSideProps is running");
-  let playerStatsData = [];
-  try {
-    // Fetch the initial data for playerStats.
-    // Note: You'll need to determine how you're setting division and season.
-    const division = 11408; // Replace with actual value
-    const season = "11710"; // Replace with actual value
-    playerStatsData = await Userservice.getPlayersStats({
-      division,
-      season,
-    });
-    console.log("test");
-
-    console.log("serverside", playerStatsData);
-  } catch (error) {
-    console.error("Server-side data fetch error:", error);
-  }
-
-  return {
-    props: {
-      initialPlayerStats: playerStatsData,
-    },
-  };
-};

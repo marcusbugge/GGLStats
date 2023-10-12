@@ -1,6 +1,14 @@
 import React, { useEffect, useState } from "react";
+import PlayerGames from "./PlayerGames";
 
-export default function Player({ loading, navSort, playerTest, season }: any) {
+export default function Player({
+  loading,
+  navSort,
+  playerTest,
+  season,
+  div,
+  playerError,
+}: any) {
   const [isDataReady, setIsDataReady] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [filterByGames, setFilterByGames] = useState(false);
@@ -15,19 +23,27 @@ export default function Player({ loading, navSort, playerTest, season }: any) {
     Farm: "allMinionsKilledPerMinute",
     Damage: "totalDamageToChampionsPerMinute",
     Gold: "goldEarnedPerMinute", // Update with the correct column
+    Towers: "towers",
   };
 
   const categoryMultipliers: any = {
     Kills: 1,
-    Deaths: 0.8,
-    KDA: 1.5,
+    Deaths: 1,
+    KDA: 1,
     Assists: 1,
-    Vision: 1.5,
-    KP: 1.5,
-    Farm: 0.8,
+    Vision: 1,
+    KP: 1,
+    Farm: 1,
     Damage: 1,
     Gold: 1,
+    Towers: 1,
   };
+
+  const [playerClick, setPlayerClick] = useState<any>(null);
+
+  function playerClicked(player: any) {
+    setPlayerClick(player);
+  }
 
   const [headerSort, setHeaderSort] = useState({
     column: defaultSortColumns[navSort],
@@ -101,9 +117,7 @@ export default function Player({ loading, navSort, playerTest, season }: any) {
 
   // Group players by their team
   const groupByTeam = (players: any) => {
-    console.log("players", players);
-
-    return players.reduce((acc: any, player: any) => {
+    return players?.reduce((acc: any, player: any) => {
       (acc[player.teamname] = acc[player.teamname] || []).push(player);
       return acc;
     }, {});
@@ -136,10 +150,20 @@ export default function Player({ loading, navSort, playerTest, season }: any) {
               ((teamAvgPlacement - avgPlacement) / teamAvgPlacement) * 100;
           }
 
+          let towers =
+            player.stats?.firstTowerKills + player.stats?.firstTowerAssists;
+
+          // Update the player's stats to include towers
+          let tower = {
+            ...player.stats,
+            towers,
+          };
+
           return {
             ...player,
             avgPlacement,
             percentBetter,
+            stats: tower,
           };
         })
         .sort((a, b) => {
@@ -183,11 +207,9 @@ export default function Player({ loading, navSort, playerTest, season }: any) {
   });
 
   const RenderPlayerTables = ({ loading, navSort }: any) => {
-    if (loading) {
+    if (playerTest.length === 0) {
       return (
         <div className="placeholder-player">
-          <h2>Loading...</h2>
-
           <table className="sortable">
             <thead>
               <tr>
@@ -202,12 +224,12 @@ export default function Player({ loading, navSort, playerTest, season }: any) {
             <tbody>
               {Array.from({ length: 10 }, (_, index) => (
                 <tr key={index + 1}>
-                  <td>--</td>
-                  <td>--</td>
-                  <td>--</td>
-                  <td>--</td>
-                  <td>--</td>
-                  <td>--</td>
+                  <td></td>
+                  <td></td>
+                  <td></td>
+                  <td></td>
+                  <td></td>
+                  <td></td>
                 </tr>
               ))}
             </tbody>
@@ -258,26 +280,47 @@ export default function Player({ loading, navSort, playerTest, season }: any) {
               </tr>
             </thead>
             <tbody>
-              {filteredPlayerTest.map((player: any, index: any) => (
-                <tr key={index}>
-                  <td className="white flagname">
-                    {" "}
-                    <p>{index + 1}</p>
-                    <img
-                      src={`https://flagsapi.com/${player.user.nationality}/flat/64.png`}
-                      alt={`${player.user.nationality} flag`}
-                    />
-                    {player.user.user_name}
-                  </td>
-                  <td>{player.stats?.summonerName}</td>
+              {filteredPlayerTest.flatMap((player, index) => {
+                const playerRow = (
+                  <tr
+                    key={`player-${index}`}
+                    onClick={() => playerClicked(player)}
+                  >
+                    <td className="white flagname">
+                      <p>{index + 1}</p>
+                      <img
+                        src={`https://flagsapi.com/${player.user.nationality}/flat/64.png`}
+                        alt={`${player.user.nationality} flag`}
+                      />
+                      {player.user.user_name}
+                    </td>
+                    <td>{player.stats?.summonerName}</td>
+                    <td>{player.teamname}</td>
+                    <td className="white">{player.stats?.mapsPlayed}</td>
+                    <td className="white">{player.stats?.kills}</td>
+                    <td className="white">{player.stats?.killsPerMinute}</td>
+                    <td className="white">{player.stats?.killsPerMap}</td>
+                  </tr>
+                );
 
-                  <td>{player.teamname}</td>
-                  <td className="white">{player.stats?.mapsPlayed}</td>
-                  <td className="white">{player.stats?.kills}</td>
-                  <td className="white">{player.stats?.killsPerMinute}</td>
-                  <td className="white">{player.stats?.killsPerMap}</td>
-                </tr>
-              ))}
+                // If this is the clicked player, we add the PlayerGames component under it
+                if (
+                  playerClick &&
+                  playerClick.user.user_name === player.user.user_name
+                ) {
+                  return [
+                    playerRow,
+                    <tr key={`playerGames-${index}`} className="player-games">
+                      <td colSpan={7}>
+                        <PlayerGames player={playerClick} div={div} />
+                      </td>
+                    </tr>,
+                  ];
+                }
+
+                // If not, just return the player's row
+                return [playerRow];
+              })}
             </tbody>
           </table>
         </div>
@@ -314,7 +357,7 @@ export default function Player({ loading, navSort, playerTest, season }: any) {
                     headerSort.column === "percentBetter" ? "sortable" : ""
                   }
                 >
-                  % better
+                  Carry
                 </th>
                 <th
                   onClick={() => handleHeaderSort("avgPlacement")}
@@ -329,27 +372,51 @@ export default function Player({ loading, navSort, playerTest, season }: any) {
             <tbody>
               {filteredPlayerTest
                 .sort((a, b) => a.avgPlacement - b.avgPlacement)
-                .map((player, index) => (
-                  <tr key={index}>
-                    {/* ...existing columns */}
-                    <td className="white flagname">
-                      {" "}
-                      <p>{index + 1}</p>
-                      <img
-                        src={`https://flagsapi.com/${player.user.nationality}/flat/64.png`}
-                        alt={`${player.user.nationality} flag`}
-                      />
-                      {player.user.user_name}
-                      {player.user.role === "banned" ? (
-                        <p className="skull">💀</p>
-                      ) : null}
-                    </td>
-                    <td>{player.stats?.summonerName}</td>
-                    <td>{player.teamname}</td>
-                    <td>{player.percentBetter.toFixed(2)}%</td>
-                    <td className="white">{player.avgPlacement.toFixed(2)}</td>
-                  </tr>
-                ))}
+                .flatMap((player, index) => {
+                  const playerRow = (
+                    <tr
+                      key={`player-${index}`}
+                      onClick={() => playerClicked(player)}
+                    >
+                      <td className="white flagname">
+                        {" "}
+                        <p>{index + 1}</p>
+                        <img
+                          src={`https://flagsapi.com/${player.user.nationality}/flat/64.png`}
+                          alt={`${player.user.nationality} flag`}
+                        />
+                        {player.user.user_name}
+                        {player.user.role === "banned" ? (
+                          <p className="skull">💀</p>
+                        ) : null}
+                      </td>
+                      <td>{player.stats?.summonerName}</td>
+                      <td>{player.teamname}</td>
+                      <td>{player.percentBetter.toFixed(2)}%</td>
+                      <td className="white">
+                        {player.avgPlacement.toFixed(2)}
+                      </td>
+                    </tr>
+                  );
+
+                  // If this is the clicked player, we add the PlayerGames component under it
+                  if (
+                    playerClick &&
+                    playerClick.user.user_name === player.user.user_name
+                  ) {
+                    return [
+                      playerRow,
+                      <tr key={`playerGames-${index}`} className="player-games">
+                        <td colSpan={7}>
+                          <PlayerGames player={playerClick} div={div} />
+                        </td>
+                      </tr>,
+                    ];
+                  }
+
+                  // If not, just return the player's row
+                  return [playerRow];
+                })}
             </tbody>
           </table>
         </div>
@@ -456,6 +523,76 @@ export default function Player({ loading, navSort, playerTest, season }: any) {
                   <td className="white">{player.stats?.kadratio}</td>
                 </tr>
               ))}
+            </tbody>
+          </table>
+        </div>
+      );
+    }
+    if (navSort === "Towers") {
+      return (
+        <div>
+          <table>
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>IGN</th>
+                <th>Team</th>
+                <th
+                  onClick={() => handleHeaderSort("mapsPlayed")}
+                  className={
+                    headerSort.column === "mapsPlayed" ? "sortable" : ""
+                  }
+                >
+                  Games
+                </th>
+                <th
+                  onClick={() => handleHeaderSort("towers")}
+                  className={headerSort.column === "towers" ? "sortable" : ""}
+                >
+                  Firsttower
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              {filteredPlayerTest.flatMap((player, index) => {
+                const playerRow = (
+                  <tr
+                    key={`player-${index}`}
+                    onClick={() => playerClicked(player)}
+                  >
+                    <td className="white flagname">
+                      <p>{index + 1}</p>
+                      <img
+                        src={`https://flagsapi.com/${player.user.nationality}/flat/64.png`}
+                        alt={`${player.user.nationality} flag`}
+                      />
+                      {player.user.user_name}
+                    </td>
+                    <td>{player.stats?.summonerName}</td>
+                    <td>{player.teamname}</td>
+                    <td className="white">{player.stats?.mapsPlayed}</td>
+                    <td className="white">{player.stats?.towers}</td>
+                  </tr>
+                );
+
+                // If this is the clicked player, we add the PlayerGames component under it
+                if (
+                  playerClick &&
+                  playerClick.user.user_name === player.user.user_name
+                ) {
+                  return [
+                    playerRow,
+                    <tr key={`playerGames-${index}`} className="player-games">
+                      <td colSpan={7}>
+                        <PlayerGames player={playerClick} div={div} />
+                      </td>
+                    </tr>,
+                  ];
+                }
+
+                // If not, just return the player's row
+                return [playerRow];
+              })}
             </tbody>
           </table>
         </div>
