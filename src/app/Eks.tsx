@@ -1,5 +1,3 @@
-"use client";
-
 import "./app.css";
 
 import React, { useEffect, useState } from "react";
