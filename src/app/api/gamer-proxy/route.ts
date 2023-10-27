@@ -1,4 +1,4 @@
-import type { NextApiRequest, NextApiResponse } from 'next';
+
 import axios from 'axios';
 import { json } from 'stream/consumers';
 import { NextRequest, NextResponse } from 'next/server';

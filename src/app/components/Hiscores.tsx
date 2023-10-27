@@ -121,7 +121,7 @@ const Hiscores: React.FC<HiscoresProps> = ({ players }) => {
             {sortedByKDA.map((team, index) => (
               <tr key={index}>
                 <td>{team.teamName}</td>
-                <td>{team.kda}</td>
+                <td className="white">{team.kda}</td>
               </tr>
             ))}
           </tbody>
@@ -141,7 +141,7 @@ const Hiscores: React.FC<HiscoresProps> = ({ players }) => {
             {sortedByFirstBloodKills.map((team, index) => (
               <tr key={index}>
                 <td>{team.teamName}</td>
-                <td>{team.firstBloodKills}</td>
+                <td className="white">{team.firstBloodKills}</td>
               </tr>
             ))}
           </tbody>
@@ -163,7 +163,7 @@ const Hiscores: React.FC<HiscoresProps> = ({ players }) => {
               <tr key={index}>
                 <td>{team.teamName}</td>
 
-                <td>{team.firstTowerKills}</td>
+                <td className="white">{team.firstTowerKills}</td>
               </tr>
             ))}
           </tbody>
@@ -186,7 +186,7 @@ const Hiscores: React.FC<HiscoresProps> = ({ players }) => {
               <tr key={index}>
                 <td>{team.teamName}</td>
 
-                <td>{team.farmPerMinute}</td>
+                <td className="white">{team.farmPerMinute}</td>
               </tr>
             ))}
           </tbody>
