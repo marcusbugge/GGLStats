@@ -11,22 +11,12 @@ import Player from "./components/Player";
 import TeamScouter from "./components/TeamScouter";
 import LadderService from "./services/Ladderservice";
 import Champions from "./components/Champions";
-
 import { Userservice } from "./services/Userservice";
 import SortButtons from "./components/SortButtons";
 import axios from "axios";
-import { GetServerSideProps } from "next";
 import Hiscores from "./components/Hiscores";
 import Dropdown from "./components/Dropdown";
 import Mvp from "./components/Mvp";
-import { loadDefaultErrorComponents } from "next/dist/server/load-components";
-
-const fetchPlayers = async (divisionId: any, selectedSeason: any) => {
-  const data = await Userservice.getPlayersStats({
-    division: divisionId,
-    season: selectedSeason,
-  });
-};
 
 export default function Eks({ navSort, setNavSort, viewPreference }: any) {
   const [playerStatsTest, setPlayerStatsTest] = useState([]);
@@ -50,6 +40,7 @@ export default function Eks({ navSort, setNavSort, viewPreference }: any) {
     { name: "Høst 2023", value: "11710" },
     { name: "Vår 2023", value: "11044" },
     { name: "Høst 2022", value: "10429" },
+    { name: "Sluttspill Høst 2022", value: "11366" },
   ];
 
   // Fetch divisions

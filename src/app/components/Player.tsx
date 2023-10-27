@@ -28,15 +28,15 @@ export default function Player({
 
   const categoryMultipliers: any = {
     Kills: 1,
-    Deaths: 1,
-    KDA: 1,
+    Deaths: 0.8,
+    KDA: 1.5,
     Assists: 1,
-    Vision: 1,
-    KP: 1,
-    Farm: 1,
+    Vision: 1.5,
+    KP: 1.5,
+    Farm: 0.8,
     Damage: 1,
     Gold: 1,
-    Towers: 1,
+    Towers: 0.1,
   };
 
   const [playerClick, setPlayerClick] = useState<any>(null);

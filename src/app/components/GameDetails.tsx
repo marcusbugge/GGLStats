@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import Loadingspin from "./Loadingspin";
 
 const GameDetails = ({ matchID, isWinningTeam }: any) => {
   const [playerStats, setPlayerStats] = useState([]);
@@ -67,8 +68,8 @@ const GameDetails = ({ matchID, isWinningTeam }: any) => {
   if (isLoading) {
     return (
       <div className="game-details-container">
-        <div className="loading-spinner white" style={{ minHeight: "500px" }}>
-          Loading...
+        <div className="loading-spinners white" style={{ minHeight: "500px" }}>
+          <Loadingspin />
         </div>
       </div>
     );

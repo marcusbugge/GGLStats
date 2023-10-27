@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
+import Loadingspin from "./Loadingspin";
 
 export default function Mvp({ selectedSeason, divisionId, mvpsort }: any) {
   const [roundData, setRoundData] = useState<any>(null);
@@ -209,7 +210,7 @@ export default function Mvp({ selectedSeason, divisionId, mvpsort }: any) {
     <div className="mvp-page">
       <h1 className="white">MVPs of the Round</h1>
       {!isEverythingLoaded ? (
-        <p>Loading...</p>
+        <Loadingspin />
       ) : mvp ? (
         <div className="podium">
           <div className="podiumname">

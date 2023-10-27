@@ -193,7 +193,6 @@ export default function TeamScouter({
             <div className="player-games">
               {championData.map((game: any, index: number) => (
                 <div className="champion-player-data" key={index}>
-                  {/* Render each individual game's info here */}
                   <div className="champion-img-name">
                     <img src={game.image}></img>
                     <p className="white">{game.name}</p>

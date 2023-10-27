@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import Loadingspin from "../components/Loadingspin";
 
 interface Player {
   summonerName: string;
@@ -205,7 +206,11 @@ const LadderService = ({ players, navSort }: LadderServiceProps) => {
   }, []);
 
   if (isLoading) {
-    return <div className="white">Loading ladder...</div>; // Simple loading indicator, you can replace with your own animation
+    return (
+      <div className="loadingspinner">
+        <Loadingspin />
+      </div>
+    ); // Simple loading indicator, you can replace with your own animation
   }
 
   return (
