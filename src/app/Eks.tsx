@@ -35,6 +35,7 @@ export default function Eks({ navSort, setNavSort, viewPreference }: any) {
     : null;
 
   const seasonOptions = [
+    { name: "Vår 2024", value: "12080" },
     { name: "Høst 2023", value: "11710" },
     { name: "Vår 2023", value: "11044" },
     { name: "Høst 2022", value: "10429" },
