@@ -20,7 +20,7 @@ export default function Eks({ navSort, setNavSort, viewPreference }: any) {
   const [playerStatsTest, setPlayerStatsTest] = useState([]);
   const [fetchedDivisions, setFetchedDivisions] = useState<any[]>([]);
   const [selectedDivision, setSelectedDivision] = useState("");
-  const [selectedSeason, setSelectedSeason] = useState("11710");
+  const [selectedSeason, setSelectedSeason] = useState("12080");
   const [loading, setLoading] = useState(true);
   const [mvpsort, setMvpsort] = useState("Round 1");
 
@@ -39,7 +39,6 @@ export default function Eks({ navSort, setNavSort, viewPreference }: any) {
     { name: "Høst 2023", value: "11710" },
     { name: "Vår 2023", value: "11044" },
     { name: "Høst 2022", value: "10429" },
-    { name: "Sluttspill Høst 2022", value: "11366" },
   ];
 
   // Fetch divisions
