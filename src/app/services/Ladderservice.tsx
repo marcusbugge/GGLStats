@@ -110,8 +110,8 @@ const LadderService = ({ players, navSort }: LadderServiceProps) => {
       try {
         setIsLoading(true);
 
-        const divisionsResponse = await fetch(
-          "/api/gamer-proxy?https://www.gamer.no/api/paradise/v2/competition/11710/divisions"
+        /* const divisionsResponse = await fetch(
+          `/api/gamer-proxy?https://www.gamer.no/api/paradise/v2/competition/${id}/divisions`
         );
 
         const allDivisions = await divisionsResponse.json();
@@ -194,7 +194,7 @@ const LadderService = ({ players, navSort }: LadderServiceProps) => {
           return LPB - LPA;
         });
 
-        setAllPlayerInfo(updatedPlayerInfo);
+        setAllPlayerInfo(updatedPlayerInfo); */
       } catch (error) {
         console.error(`Could not fetch data: ${error}`);
       } finally {
