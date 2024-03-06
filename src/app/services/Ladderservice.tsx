@@ -111,7 +111,7 @@ const LadderService = ({ players, navSort }: LadderServiceProps) => {
         setIsLoading(true);
 
         const divisionsResponse = await fetch(
-          "/api/gamer-proxy?https://www.gamer.no/api/paradise/v2/competition/11710/divisions"
+          `/api/gamer-proxy?https://www.gamer.no/api/paradise/v2/competition/${id}/divisions`
         );
 
         const allDivisions = await divisionsResponse.json();
