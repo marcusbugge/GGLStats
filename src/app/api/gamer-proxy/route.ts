@@ -3,9 +3,12 @@ import { NextResponse } from "next/server";
 export async function GET(req: Request) {
   const gamerUrlWithQueryParams = req.url.substring(req.url.indexOf("?") + 1);
 
-  console.log("url", gamerUrlWithQueryParams);
+  // Decode the URL
+  const decodedUrl = decodeURIComponent(gamerUrlWithQueryParams);
 
-  const fetchResponse = await fetch(gamerUrlWithQueryParams, {
+  console.log("url", decodedUrl);
+
+  const fetchResponse = await fetch(decodedUrl, {
     method: "GET", // Optional, as GET is the default method
     headers: {
       Authorization: `Bearer ${process.env.GAMER_API_TOKEN}`,
