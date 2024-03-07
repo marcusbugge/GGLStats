@@ -1,10 +1,12 @@
 body {
   display: flex;
+  margin: 0;
+  padding: 0;
 }
 
 html {
   background-color: var(--background-dark);
-  padding: 40px;
+  padding: 0px 40px 40px 0px;
 }
 
 .main {
@@ -27,8 +29,9 @@ html {
 }
 
 .content {
-  margin-top: 20px;
-  min-width: 80vw;
+  margin-top: 50px;
+  min-width: 75vw;
+  margin-left: 370px;
 }
 
 .content-nav {
@@ -161,6 +164,7 @@ select .option {
   display: flex;
   justify-content: center;
   align-items: center;
+  margin-left: 300px;
 }
 
 .footer div {
