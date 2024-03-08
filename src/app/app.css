@@ -154,6 +154,21 @@ select .option {
   margin-right: 20px;
 }
 
+.carrypercent {
+  color: white;
+  width: fit-content;
+  padding: 2px 5px;
+  border-radius: 10px;
+  font-size: 14px;
+}
+
+.carrypercent.positive {
+  background-color: green;
+}
+
+.carrypercent.negative {
+  background-color: red;
+}
 /** FOOTER **/
 
 .footer {

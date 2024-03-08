@@ -8,6 +8,7 @@ import Champions from "../assets/champions.png";
 import Standings from "../assets/standings.png";
 import Stats from "../assets/stats.png";
 import Teamscouter from "../assets/teamscouter.png";
+import Logo from "../assets/ggllogo.png";
 import { useRouter, withRouter } from "next/router";
 import Image from "next/image";
 
@@ -30,7 +31,7 @@ export default function Navbar({ setNavSort, handleSortOptionClick }: any) {
 
       <div className="navbar">
         <h1 className="gglstats white">
-          <span className="ggl">GGL </span> Stats
+          <span className="ggl">GGL</span> Stats
         </h1>
         <div className="navbar-content">
           <h2
