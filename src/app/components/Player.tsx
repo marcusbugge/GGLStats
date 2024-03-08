@@ -392,7 +392,16 @@ export default function Player({
                       </td>
                       <td>{player.stats?.summonerName}</td>
                       <td>{player.teamname}</td>
-                      <td>{player.percentBetter.toFixed(2)}%</td>
+                      <td>
+                        <p
+                          className={`carrypercent ${
+                            player.percentBetter > 0 ? "positive" : "negative"
+                          }`}
+                        >
+                          {player.percentBetter.toFixed(2)}%
+                        </p>
+                      </td>
+
                       <td className="white">
                         {player.avgPlacement.toFixed(2)}
                       </td>
