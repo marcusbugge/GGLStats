@@ -163,11 +163,11 @@ select .option {
 }
 
 .carrypercent.positive {
-  background-color: green;
+  background-color: #4ea124;
 }
 
 .carrypercent.negative {
-  background-color: red;
+  background-color: #e23636;
 }
 /** FOOTER **/
 
