@@ -23,6 +23,6 @@
       "@/*": ["./src/*"]
     }
   },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", "src/app/Counter.jsx", "src/app/Eks.tsx", "src/app/components/Kda.jsx"],
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", "src/app/Counter.jsx", "src/app/Eks.tsx", "src/app/components/Kda.jsx", "src/app/services/Userservice.jsx"],
   "exclude": ["node_modules"]
 }
