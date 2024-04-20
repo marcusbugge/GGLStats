@@ -169,6 +169,20 @@ select .option {
 .carrypercent.negative {
   background-color: #e23636;
 }
+
+.role-select-cnt {
+  margin: 40px 0px;
+}
+
+.roles-cnt {
+}
+
+.roles-cnt img {
+  background-color: var(--background-dark);
+  margin-right: 5px;
+  padding: 8px;
+  border-radius: 10px;
+}
 /** FOOTER **/
 
 .footer {

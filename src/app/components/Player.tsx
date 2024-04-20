@@ -13,6 +13,20 @@ export default function Player({
   const [searchTerm, setSearchTerm] = useState("");
   const [filterByGames, setFilterByGames] = useState(false);
 
+  const [activeRole, setActiveRole] = useState<string | null>(null);
+
+  const roleImages: any = {
+    top: "https://raw.communitydragon.org/pbe/plugins/rcp-fe-lol-static-assets/global/default/svg/position-top-light.svg",
+    jungle:
+      "https://raw.communitydragon.org/pbe/plugins/rcp-fe-lol-static-assets/global/default/svg/position-jungle-light.svg",
+    middle:
+      "https://raw.communitydragon.org/pbe/plugins/rcp-fe-lol-static-assets/global/default/svg/position-middle-light.svg",
+    bottom:
+      "https://raw.communitydragon.org/pbe/plugins/rcp-fe-lol-static-assets/global/default/svg/position-bottom-light.svg",
+    utility:
+      "https://raw.communitydragon.org/pbe/plugins/rcp-fe-lol-static-assets/global/default/svg/position-utility-light.svg",
+  };
+
   const defaultSortColumns: any = {
     Kills: "killsPerMap",
     Deaths: "deathsPerMap", // Update with the correct column
@@ -27,14 +41,14 @@ export default function Player({
   };
 
   const categoryMultipliers: any = {
-    Kills: 1,
+    Kills: 1.2,
     Deaths: 1,
     KDA: 1,
     Assists: 1,
-    Vision: 1,
-    KP: 0.8,
-    Farm: 1,
-    Damage: 1,
+    Vision: 0.8,
+    KP: 1,
+    Farm: 1.2,
+    Damage: 1.2,
     Gold: 1,
     Towers: 0.5,
   };
@@ -191,7 +205,7 @@ export default function Player({
         })
     : [];
 
-  const filteredPlayerTest = sortedPlayerTest.filter((player) => {
+  const filteredPlayerTestt = sortedPlayerTest.filter((player) => {
     const searchTermLower = searchTerm.toLowerCase();
     const moreThanThreeGames = filterByGames
       ? player.stats?.mapsPlayed > 3
@@ -205,6 +219,10 @@ export default function Player({
           player.teamname.toLowerCase().includes(searchTermLower)))
     );
   });
+
+  const filteredPlayerTest = filteredPlayerTestt.filter(
+    (player) => activeRole === null || player.role === activeRole
+  );
 
   const RenderPlayerTables = ({ loading, navSort }: any) => {
     if (playerTest.length === 0) {
@@ -245,6 +263,7 @@ export default function Player({
             <thead>
               <tr>
                 <th>Name</th>
+                <th>Role</th>
                 <th>IGN</th>
                 <th>Team</th>
                 <th
@@ -281,6 +300,7 @@ export default function Player({
             </thead>
             <tbody>
               {filteredPlayerTest.flatMap((player, index) => {
+                const roleImageSrc = roleImages[player.role.toLowerCase()];
                 const playerRow = (
                   <tr
                     key={`player-${index}`}
@@ -294,6 +314,18 @@ export default function Player({
                       />
                       {player.user.user_name}
                     </td>
+                    <td>
+                      <img
+                        src={roleImageSrc}
+                        alt={player.role}
+                        style={{
+                          width: "26px",
+                          height: "26px",
+                          marginRight: "20px",
+                        }}
+                      />
+                    </td>
+
                     <td>{player.stats?.summonerName}</td>
                     <td>{player.teamname}</td>
                     <td className="white">{player.stats?.mapsPlayed}</td>
@@ -340,10 +372,32 @@ export default function Player({
             into these calculations. Currently, players in support and top roles
             may find their statistics limited due to role-specific constraints.
           </p>
+
+          <div className="role-select-cnt">
+            <div className="roles-cnt">
+              {Object.entries(roleImages).map(([role, src]: any) => (
+                <img
+                  key={role}
+                  src={src}
+                  alt={role}
+                  style={{
+                    width: "35px",
+                    height: "35px",
+                    backgroundColor:
+                      activeRole === role ? "var(--purple)" : "none",
+                  }}
+                  onClick={() =>
+                    setActiveRole(role === activeRole ? null : role)
+                  }
+                />
+              ))}
+            </div>
+          </div>
           <table>
             <thead>
               <tr>
                 <th>Name</th>
+                <th>Role</th>
                 <th>IGN</th>
                 <th
                   onClick={() => handleHeaderSort("teamname")}
@@ -373,6 +427,7 @@ export default function Player({
               {filteredPlayerTest
                 .sort((a, b) => a.avgPlacement - b.avgPlacement)
                 .flatMap((player, index) => {
+                  const roleImageSrc = roleImages[player.role.toLowerCase()];
                   const playerRow = (
                     <tr
                       key={`player-${index}`}
@@ -389,6 +444,17 @@ export default function Player({
                         {player.user.role === "banned" ? (
                           <p className="skull">💀</p>
                         ) : null}
+                      </td>
+                      <td>
+                        <img
+                          src={roleImageSrc}
+                          alt={player.role}
+                          style={{
+                            width: "26px",
+                            height: "26px",
+                            marginRight: "20px",
+                          }}
+                        />
                       </td>
                       <td>{player.stats?.summonerName}</td>
                       <td>{player.teamname}</td>
@@ -437,6 +503,7 @@ export default function Player({
             <thead>
               <tr>
                 <th>Name</th>
+                <th>Role</th>
                 <th>IGN</th>
                 <th>Team</th>
                 <th
@@ -466,7 +533,7 @@ export default function Player({
               </tr>
             </thead>
             <tbody>
-              {filteredPlayerTest.map((player: any, index: any) => (
+              {filteredPlayerTest.flatMap((player: any, index: any) => (
                 <tr key={index + 1}>
                   <td className="white flagname">
                     {" "}
@@ -496,6 +563,7 @@ export default function Player({
             <thead>
               <tr>
                 <th>Name</th>
+                <th>Role</th>
                 <th>IGN</th>
                 <th>Team</th>
                 <th
@@ -544,6 +612,7 @@ export default function Player({
             <thead>
               <tr>
                 <th>Name</th>
+                <th>Role</th>
                 <th>IGN</th>
                 <th>Team</th>
                 <th
@@ -613,6 +682,7 @@ export default function Player({
             <thead>
               <tr>
                 <th>Name</th>
+                <th>Role</th>
                 <th>IGN</th>
                 <th>Team</th>
                 <th
@@ -669,6 +739,7 @@ export default function Player({
             <thead>
               <tr>
                 <th>Name</th>
+                <th>Role</th>
                 <th>IGN</th>
                 <th>Team</th>
                 <th
@@ -752,6 +823,7 @@ export default function Player({
             <thead>
               <tr>
                 <th>Name</th>
+                <th>Role</th>
                 <th>IGN</th>
                 <th>Team</th>
                 <th>Games</th>
@@ -787,6 +859,7 @@ export default function Player({
             <thead>
               <tr>
                 <th>Name</th>
+                <th>Role</th>
                 <th>IGN</th>
                 <th>Team</th>
                 <th>Games</th>
@@ -824,6 +897,7 @@ export default function Player({
             <thead>
               <tr>
                 <th>Name</th>
+                <th>Role</th>
                 <th>IGN</th>
                 <th>Team</th>
                 <th>Games</th>
@@ -861,6 +935,7 @@ export default function Player({
             <thead>
               <tr>
                 <th>Name</th>
+                <th>Role</th>
                 <th>IGN</th>
                 <th>Team</th>
                 <th>Games</th>
