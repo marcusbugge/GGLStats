@@ -39,6 +39,7 @@ export default function Eks({ navSort, setNavSort, viewPreference }: any) {
     { name: "Høst 2023", value: "11710" },
     { name: "Vår 2023", value: "11044" },
     { name: "Høst 2022", value: "10429" },
+    { name: "Playoff 2022", value: "12346," },
   ];
 
   // Fetch divisions
@@ -145,6 +146,12 @@ export default function Eks({ navSort, setNavSort, viewPreference }: any) {
   return (
     <div className="app">
       <div className="content">
+        <div className="header-bg">
+          <img
+            src="https://www.goodgameligaen.no/image/700/GGL_Logo_Horisontal-Negativ.png?c=0&h=501&w=1360&format=webp"
+            alt="goodgame-logo"
+          />
+        </div>
         <div className="content-nav">
           <div className="dropdowns">
             <Dropdown

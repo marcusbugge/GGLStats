@@ -13,6 +13,24 @@ html {
   display: flex;
 }
 
+.header-bg {
+  width: 76vw;
+  height: 30vh;
+  background-color: var(--purple);
+  border-radius: 20px;
+  margin-bottom: 50px;
+  background-image: url("https://images.contentstack.io/v3/assets/blt370612131b6e0756/bltd897c9a5cef63006/5f9367dacb9eba781f0846fc/LoL_WR_KV_Banner_1920x1080.jpg");
+  background-position: 2% 50%;
+  background-size: cover;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.header-bg img {
+  width: 400px;
+}
+
 .page-cnt {
   display: flex;
 }
@@ -31,7 +49,7 @@ html {
 .content {
   margin-top: 50px;
   min-width: 75vw;
-  margin-left: 370px;
+  margin-left: 320px;
 }
 
 .content-nav {
@@ -40,7 +58,7 @@ html {
   margin-bottom: 20px;
   color: white;
   font-weight: 600;
-  font-size: 18px;
+  font-size: 16px;
 }
 
 .sorts-cnt {
@@ -90,7 +108,7 @@ table th {
   border-bottom: 1px solid var(--background-light);
   color: var(--font-dark);
   font-weight: 400;
-  font-size: 14px;
+  font-size: 13px;
 }
 
 table tr:hover {
@@ -118,7 +136,7 @@ select {
   padding: 10px 20px;
   color: white;
   font-weight: 600;
-  font-size: 18px;
+  font-size: 16px;
   border-bottom: 5px solid var(--purple);
   margin-right: 30px;
 }
@@ -159,7 +177,7 @@ select .option {
   width: fit-content;
   padding: 2px 5px;
   border-radius: 10px;
-  font-size: 14px;
+  font-size: 13px;
 }
 
 .carrypercent.positive {

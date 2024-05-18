@@ -1,10 +1,11 @@
 "use client";
 
-import "./globals.css";
+import "../app/styles/global.css";
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import Navbar from "./components/Navbar";
 import { useState } from "react";
+import icon from "../app/assets/logo.png";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -31,8 +32,11 @@ export default function RootLayout({
     setSortPreference(option);
     setViewPreference(option);
   };
+
   return (
     <html lang="en">
+      <title>GGL Stats | Statistics for GoodGame-Ligaen</title>
+
       <body className={inter.className}>{children}</body>
     </html>
   );
