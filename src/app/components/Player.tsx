@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from "react";
 import PlayerGames from "./PlayerGames";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
 
 export default function Player({
   loading,
@@ -9,10 +11,10 @@ export default function Player({
   div,
   playerError,
 }: any) {
+  const router = useRouter();
   const [isDataReady, setIsDataReady] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [filterByGames, setFilterByGames] = useState(false);
-
   const [activeRole, setActiveRole] = useState<string | null>(null);
 
   const roleImages: any = {
@@ -53,10 +55,26 @@ export default function Player({
     Towers: 0.5,
   };
 
+  const roleMultipliers: any = {
+    top: 0.9,
+    jungle: 0.9,
+    middle: 1,
+    bottom: 1,
+    utility: 0.8,
+  };
+
   const [playerClick, setPlayerClick] = useState<any>(null);
 
   function playerClicked(player: any) {
-    setPlayerClick(player);
+    console.log(player);
+
+    if (player) {
+      router.push(
+        `/player/${player.user_id}?teamID=${player.team_id}&divisionID=${div}`
+      );
+    }
+
+    // setPlayerClick(player);
   }
 
   const [headerSort, setHeaderSort] = useState({
@@ -110,7 +128,10 @@ export default function Player({
       totalWeight += weight;
     }
 
-    return totalWeight > 0 ? weightedTotalPlacement / totalWeight : 0;
+    const avgPlacement =
+      totalWeight > 0 ? weightedTotalPlacement / totalWeight : 0;
+    const roleMultiplier = roleMultipliers[player.role.toLowerCase()] || 1;
+    return avgPlacement * roleMultiplier;
   };
 
   // Function to calculate average placement for a team
@@ -503,7 +524,7 @@ export default function Player({
             <thead>
               <tr>
                 <th>Name</th>
-                <th>Role</th>
+
                 <th>IGN</th>
                 <th>Team</th>
                 <th
@@ -563,7 +584,6 @@ export default function Player({
             <thead>
               <tr>
                 <th>Name</th>
-                <th>Role</th>
                 <th>IGN</th>
                 <th>Team</th>
                 <th
@@ -612,7 +632,7 @@ export default function Player({
             <thead>
               <tr>
                 <th>Name</th>
-                <th>Role</th>
+
                 <th>IGN</th>
                 <th>Team</th>
                 <th
@@ -682,7 +702,7 @@ export default function Player({
             <thead>
               <tr>
                 <th>Name</th>
-                <th>Role</th>
+
                 <th>IGN</th>
                 <th>Team</th>
                 <th
@@ -739,7 +759,7 @@ export default function Player({
             <thead>
               <tr>
                 <th>Name</th>
-                <th>Role</th>
+
                 <th>IGN</th>
                 <th>Team</th>
                 <th
@@ -823,7 +843,7 @@ export default function Player({
             <thead>
               <tr>
                 <th>Name</th>
-                <th>Role</th>
+
                 <th>IGN</th>
                 <th>Team</th>
                 <th>Games</th>
@@ -859,7 +879,7 @@ export default function Player({
             <thead>
               <tr>
                 <th>Name</th>
-                <th>Role</th>
+
                 <th>IGN</th>
                 <th>Team</th>
                 <th>Games</th>
@@ -897,7 +917,7 @@ export default function Player({
             <thead>
               <tr>
                 <th>Name</th>
-                <th>Role</th>
+
                 <th>IGN</th>
                 <th>Team</th>
                 <th>Games</th>
@@ -935,7 +955,7 @@ export default function Player({
             <thead>
               <tr>
                 <th>Name</th>
-                <th>Role</th>
+
                 <th>IGN</th>
                 <th>Team</th>
                 <th>Games</th>

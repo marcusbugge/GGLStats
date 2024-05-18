@@ -1,17 +1,15 @@
 .navbar {
-  min-width: 220px;
-  margin-top: -20px;
-  margin-right: 20px;
-  background-color: var(--background);
-  border: 1px solid var(--background-light);
+  min-width: 180px;
+
+  border-right: 1px solid var(--background-light);
   padding: 40px 40px;
-  border-radius: 40px;
+
   height: 100vh;
   position: fixed;
 }
 
 .navbar-content {
-  margin-top: 60px;
+  margin-top: 40px;
 }
 
 .ggllogo {
@@ -19,7 +17,7 @@
 }
 .navbar-content h2 {
   cursor: pointer;
-  font-size: 18px;
+  font-size: 16px;
 }
 
 .navbar-content h2:hover {
@@ -48,6 +46,20 @@
 .ladder {
   display: flex;
   align-items: center;
+}
+
+.socials-cnt {
+  display: flex;
+  justify-content: center;
+  margin-top: 47vh;
+
+  margin-left: -10px;
+}
+
+.socials-cnt img {
+  width: 60px !important;
+  height: 60px !important;
+  margin-right: -10px !important;
 }
 
 /** dropdown **/
@@ -80,29 +92,20 @@
   display: block;
 }
 
-.ggl {
+.gglstats {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-height: 80px;
+  background-color: var(--background-dark);
+  border-radius: 40px;
 }
 
-@media screen and (max-width: 1149px) {
-  .navbar-content {
-    display: none;
-  }
-  .dropdown {
-    position: absolute;
-    top: 30px;
-    right: 50px;
-    display: block;
-  }
-  .gglstats {
-    display: none;
-  }
-
-  .navbar {
-    display: none;
-  }
-  .sorts-cnt div {
-    font-size: 12px !important;
-  }
+.gglstats img {
+  min-width: 60px;
+  min-height: 35px;
+  margin-right: 10px !important;
 }
 
 .navbar img {

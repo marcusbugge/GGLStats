@@ -8,9 +8,12 @@ import Champions from "../assets/champions.png";
 import Standings from "../assets/standings.png";
 import Stats from "../assets/stats.png";
 import Teamscouter from "../assets/teamscouter.png";
-import Logo from "../assets/ggllogo.png";
+import logo from "../assets/logo.png";
 import { useRouter, withRouter } from "next/router";
 import Image from "next/image";
+import twitter from "./../assets/twitter.png";
+import twitch from "./../assets/twitch.png";
+import discord from "./../assets/discord.png";
 
 export default function Navbar({ setNavSort, handleSortOptionClick }: any) {
   const [activeSort, setActiveSort] = useState<string>("");
@@ -30,9 +33,11 @@ export default function Navbar({ setNavSort, handleSortOptionClick }: any) {
       {/* Dropdown */}
 
       <div className="navbar">
-        <h1 className="gglstats white">
-          <span className="ggl">GGL</span> Stats
-        </h1>
+        <div className="gglstats">
+          <Image src={logo} alt="logo" />
+          <h1 className="ggl white">Stats</h1>
+        </div>
+
         <div className="navbar-content">
           <h2
             onClick={() => handleSortClick("Player")}

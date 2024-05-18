@@ -1,0 +1,333 @@
+body {
+  background-color: var(--background-dark);
+}
+
+* {
+  padding: 0;
+  margin: 0;
+}
+
+.playerprofile {
+  min-width: 74vw;
+  margin: 80px 13vw;
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
+}
+
+.headerr {
+  background-color: var(--background);
+  height: 250px;
+  border-radius: 20px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 65px;
+  color: white;
+  font-weight: 800;
+
+  border: 1px solid var(--stroke);
+}
+
+.headerr p {
+  display: inline-block !important;
+  font-size: 32px !important;
+  transform: scale(0.5, 1) !important;
+}
+
+.player-grid {
+  margin-top: 20px;
+  display: grid;
+  grid-template-columns: 4fr 8fr; /* 2/3 to 1/3 width ratio */
+  grid-template-rows: auto; /* Adjust the row height automatically */
+  width: 100%;
+  gap: 20px; /* Optional: add some space between columns */
+}
+.left-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 20px; /* Optional: add some space between items */
+}
+
+.history,
+.playerinfo,
+.playermarks,
+.playerstats {
+  background-color: var(--background);
+  border: 1px solid var(--stroke);
+  border-radius: 20px;
+}
+
+/** HISTORY **/
+
+.history {
+  padding: 30px;
+}
+
+.match-cntt {
+  min-height: 50px;
+  padding: 10px 15px;
+
+  margin: 0px 0px 10px 0px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+}
+.championimg {
+  width: 50px;
+  border-radius: 5px;
+}
+
+.champ-cnt {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.sums {
+  display: flex;
+  flex-direction: column;
+  margin-left: 5px;
+}
+
+.sum {
+  width: 25px;
+}
+
+.oppo {
+  color: lightgray;
+  font-size: 12px;
+  font-weight: 800;
+  margin-left: 30px;
+}
+.stats {
+  display: flex;
+  align-items: center;
+}
+
+.rest-stats {
+  display: flex;
+  margin-left: 20px;
+  flex-direction: column;
+  min-width: 100px;
+}
+
+.rest-stats p {
+  margin-right: 5px;
+  font-size: 10px;
+  color: rgb(200, 200, 200) !important;
+  font-weight: 400 !important;
+}
+
+.kda {
+  font-weight: 800;
+  font-size: 14px;
+  color: white;
+  margin-left: 20px;
+  min-width: 60px;
+}
+
+.item {
+  width: 30px; /* Adjust size accordingly */
+  height: 30px;
+  margin: 2px;
+}
+
+.placeholder {
+  width: 30px;
+  height: 30px;
+  background-color: var(--background);
+  display: inline-block;
+}
+
+.victory {
+  background: rgb(96, 203, 107);
+  background: linear-gradient(
+    90deg,
+    rgba(96, 203, 107, 0.2) 25%,
+    rgba(79, 169, 88, 0.1) 100%
+  );
+  border: 1px solid #3dcf4b;
+  box-shadow: 0 0 3px rgb(96, 203, 107);
+}
+
+.items {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.defeat {
+  background: #a54141;
+  background: linear-gradient(90deg, #ff4d4d22 100%, #c53b3b2e 0%);
+  border: 1px solid #ff4d4d;
+  box-shadow: 0 0 3px #a54141;
+}
+
+.victory-text,
+.defeat-text {
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.victory-text {
+  color: #42c04e; /* Green text for victory */
+}
+
+.defeat-text {
+  color: #ff4d4d; /* Red text for defeat */
+}
+
+/** PLAYERINFO **/
+
+.playerinfo {
+  min-height: 100px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0px 60px;
+}
+
+.playerinfo img {
+  width: 50px;
+}
+
+.stroke {
+  width: 2px;
+  height: 50%;
+  background-color: var(--stroke);
+}
+
+/** PLAYERMARKS **/
+
+.playermarks {
+  min-height: 220px;
+}
+
+/** PLAYERSTATS **/
+
+.playerstats {
+  padding: 20px;
+}
+
+.champion-statss {
+  margin-bottom: 10px !important;
+}
+
+.champion-statss img {
+  border-radius: 5px;
+}
+
+.champion-stats h1 {
+  color: white;
+  font-size: 14px;
+}
+
+.firstt {
+  display: flex;
+  align-items: center;
+}
+
+.firstt p {
+  font-size: 12px;
+  margin-top: 5px;
+}
+
+.first-stats {
+  margin-left: 5px;
+  width: 80px;
+}
+
+.killsdeathassist {
+  font-size: 12px !important;
+  font-weight: 700;
+}
+
+.middle-stats {
+  text-align: center;
+}
+.stats-playerss {
+  display: flex;
+  width: 100%;
+  justify-content: space-between !important;
+  align-items: center;
+}
+
+.stats-playerss h1 {
+  font-size: 14px;
+  color: white;
+}
+
+.last-stats {
+  display: flex;
+  justify-content: flex-end;
+  flex-direction: column;
+}
+
+.last-stats p {
+  text-align: right;
+}
+
+.wr {
+  font-weight: 800;
+  font-size: 12px;
+}
+
+.showmore {
+  text-align: center;
+  margin: 20px 0px;
+}
+
+.outcome-text {
+  width: 100%;
+  text-align: right;
+}
+
+.load-more {
+  background-color: none;
+  border: none;
+  font-weight: 700;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.load-more:hover {
+  color: white;
+}
+
+.loader-img {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  min-width: 100vw;
+  animation: ease-in-out infinite;
+  animation-name: logoanimation;
+  animation-duration: 2s;
+}
+
+.items-t {
+  display: flex;
+  justify-content: space-between;
+  width: 450px;
+  align-items: center;
+}
+
+@keyframes logoanimation {
+  0% {
+    margin-top: 0px;
+  }
+  25% {
+    margin-top: 25px;
+  }
+  50% {
+    margin-top: 0px;
+  }
+  75% {
+    margin-top: 10px;
+  }
+  100% {
+    margin-top: 0px;
+  }
+}
