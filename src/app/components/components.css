@@ -840,3 +840,17 @@
 table tr.player-games:hover {
   background-color: inherit; /* or whatever the default is */
 }
+
+.top-players {
+  display: flex;
+  justify-content: space-around;
+  margin-bottom: 20px;
+}
+
+.top-player {
+  flex: 1;
+  margin: 0 10px;
+  border: 2px solid #ccc;
+  padding: 10px;
+  text-align: center;
+}

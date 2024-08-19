@@ -5,12 +5,10 @@ export default function PlayerHistory({ games }: any) {
     return <div>No games found for this player.</div>;
   }
 
-  console.log("games", games);
-
   // Helper function to render items or placeholders
   const renderItems = (game: any) => {
     let items = [];
-    for (let i = 1; i <= 6; i++) {
+    for (let i = 0; i <= 6; i++) {
       const itemImage = game[`item${i}Image`];
       if (itemImage) {
         items.push(
