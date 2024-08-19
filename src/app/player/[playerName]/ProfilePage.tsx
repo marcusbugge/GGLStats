@@ -15,7 +15,11 @@ export default function PlayerProfile() {
   const { playerName }: any = useParams();
   const searchParams = useSearchParams();
   const divisionID = searchParams.get("divisionID");
-  const teamID = searchParams.get("teamID");
+  let teamID = searchParams.get("teamID");
+
+  if (teamID == "undefined") {
+    teamID = "111111";
+  }
 
   const [data, setData]: any = useState({
     isLoading: true,

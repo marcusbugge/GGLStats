@@ -1,5 +1,6 @@
 import axios from "axios";
 import roles from "../../../roles.json"; // Assuming roles.json is stored locally and can be imported directly
+
 interface PlayerRoles {
   [key: string]: string;
 }
@@ -9,6 +10,7 @@ interface RolesData {
 }
 
 const rolesData: RolesData = roles;
+
 export class Userservice {
   static async getPlayersStats({
     division,
@@ -30,40 +32,44 @@ export class Userservice {
         ),
       ]);
 
-      const playerData = players.data.data.map((player: any): any => {
-        // Find the corresponding teamInfo and stats for the player
+      // Create a map of player stats for easy lookup
+      const playerStatsMap = new Map<number, any>();
+      stats.data.forEach((stat: any) => {
+        if (stat.user && stat.user.id) {
+          playerStatsMap.set(stat.user.id, stat);
+        }
+      });
+
+      // Create a map of player data for easy lookup
+      const playerDataMap = new Map<number, any>();
+      players.data.data.forEach((player: any) => {
+        playerDataMap.set(player.user_id, player);
+      });
+
+      const mergedPlayerData: any[] = [];
+
+      // Iterate through stats and add all players with stats
+      playerStatsMap.forEach((playerStat, userId) => {
+        const player = playerDataMap.get(userId) || {
+          user_id: userId,
+          user: playerStat.user, // Include the whole user object
+        };
         const teamInfo = tables.data.find(
           (table: any) => table.team_id === player.team_id
         );
-        const playerStats = stats.data.find(
-          (stat: any) => stat.user && stat.user.id === player.user_id
-        );
+        const playerRole: string = rolesData.PlayerRoles[userId.toString()];
 
-        // Find player role from roles.json data
-        const playerRole: string =
-          rolesData.PlayerRoles[player.user_id.toString()];
-
-        // Merge player, teamInfo, stats, and add role
-        return {
+        mergedPlayerData.push({
           ...player,
-          stats: playerStats, // Storing playerStats under the 'stats' key
+          stats: playerStat,
           teamname: teamInfo ? teamInfo.display_name : "Unknown Team",
-          role: playerRole ? playerRole : "?", // Add the role or mark as unknown
-        };
+          role: playerRole ? playerRole : "?",
+        });
       });
 
-      // Filter out players that have no stats
-      const filteredPlayerData = playerData.filter((player: any) => {
-        return (
-          player.stats !== null &&
-          player.stats !== undefined &&
-          Object.keys(player.stats).length > 0
-        );
-      });
+      console.log(mergedPlayerData);
 
-      console.log(filteredPlayerData);
-
-      return filteredPlayerData;
+      return mergedPlayerData;
     } catch (error) {
       console.error("Error fetching data:", error);
       return [];

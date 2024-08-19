@@ -16,11 +16,19 @@ import Hiscores from "./components/Hiscores";
 import Dropdown from "./components/Dropdown";
 import Mvp from "./components/Mvp";
 
+const seasonOptions = [
+  { name: "Høst 2024", value: "12465" },
+  { name: "Vår 2024", value: "12080" },
+  { name: "Høst 2023", value: "11710" },
+  { name: "Vår 2023", value: "11044" },
+  { name: "Høst 2022", value: "10429" },
+];
+
 export default function Eks({ navSort, setNavSort, viewPreference }: any) {
   const [playerStatsTest, setPlayerStatsTest] = useState([]);
   const [fetchedDivisions, setFetchedDivisions] = useState<any[]>([]);
   const [selectedDivision, setSelectedDivision] = useState("");
-  const [selectedSeason, setSelectedSeason] = useState("12080");
+  const [selectedSeason, setSelectedSeason] = useState(seasonOptions[0].value);
   const [loading, setLoading] = useState(true);
   const [mvpsort, setMvpsort] = useState("Round 1");
 
@@ -33,14 +41,6 @@ export default function Eks({ navSort, setNavSort, viewPreference }: any) {
   const actualDivisionID = selectedDivisionObject
     ? selectedDivisionObject.id
     : null;
-
-  const seasonOptions = [
-    { name: "Vår 2024", value: "12080" },
-    { name: "Høst 2023", value: "11710" },
-    { name: "Vår 2023", value: "11044" },
-    { name: "Høst 2022", value: "10429" },
-    { name: "Playoff 2022", value: "12346," },
-  ];
 
   // Fetch divisions
   useEffect(() => {
@@ -74,7 +74,7 @@ export default function Eks({ navSort, setNavSort, viewPreference }: any) {
         const divisionId = fetchedDivisions.find(
           (div) => div.name === selectedDivision
         ).id;
-        const data = await Userservice.getPlayersStats({
+        const data: any = await Userservice.getPlayersStats({
           division: divisionId,
           season: selectedSeason,
         });
