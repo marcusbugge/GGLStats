@@ -17,12 +17,32 @@ import Dropdown from "./components/Dropdown";
 import Mvp from "./components/Mvp";
 
 const seasonOptions = [
+  { name: "Vinter 2025", value: "13163" },
   { name: "Høst 2024", value: "12465" },
   { name: "Vår 2024", value: "12080" },
   { name: "Høst 2023", value: "11710" },
   { name: "Vår 2023", value: "11044" },
   { name: "Høst 2022", value: "10429" },
 ];
+
+// Hjelpefunksjon for å sortere divisjoner
+const sortDivisions = (divisions: any[]) => {
+  return divisions.sort((a, b) => {
+    // Hent tall fra divisjonsnavnene
+    const aNum = parseInt(a.name);
+    const bNum = parseInt(b.name);
+
+    // Hvis begge har tall, sorter etter tall
+    if (!isNaN(aNum) && !isNaN(bNum)) {
+      return aNum - bNum;
+    }
+    // Hvis bare en har tall, sett den først
+    if (!isNaN(aNum)) return -1;
+    if (!isNaN(bNum)) return 1;
+    // Ellers sorter alfabetisk
+    return a.name.localeCompare(b.name);
+  });
+};
 
 export default function Eks({ navSort, setNavSort, viewPreference }: any) {
   const [playerStatsTest, setPlayerStatsTest] = useState([]);
@@ -49,11 +69,12 @@ export default function Eks({ navSort, setNavSort, viewPreference }: any) {
         const response = await axios.get(
           `/api/gamer-proxy?https://www.gamer.no/api/paradise/v2/competition/${selectedSeason}/divisions`
         );
-        setFetchedDivisions(response.data);
+        const sortedDivisions = sortDivisions(response.data);
+        setFetchedDivisions(sortedDivisions);
         // Try to set to "1. divisjon" by default, otherwise set to the first division in the list
         const defaultDivision =
-          response.data.find((div: any) => div.name === "1. divisjon") ||
-          response.data[0];
+          sortedDivisions.find((div: any) => div.name === "1. divisjon") ||
+          sortedDivisions[0];
 
         if (defaultDivision) {
           setSelectedDivision(defaultDivision.name);
